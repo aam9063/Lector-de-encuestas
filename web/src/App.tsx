@@ -1,32 +1,80 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ApiError, analyzeText, getChecklist } from "./api/client";
+import type { Checklist, Report } from "./api/types";
+import { InputScreen } from "./components/InputScreen";
+import { Sheet } from "./components/Sheet";
+import { VedaNotice } from "./components/VedaNotice";
 
 function App() {
-  const [text, setText] = useState("");
+  const [pastedText, setPastedText] = useState("");
+  const [report, setReport] = useState<Report | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [checklist, setChecklist] = useState<Checklist | null>(null);
+
+  // The checklist is data from the API, never a copy inside this codebase.
+  useEffect(() => {
+    let cancelled = false;
+    getChecklist()
+      .then((fetched) => {
+        if (!cancelled) setChecklist(fetched);
+      })
+      .catch(() => {
+        // Without the checklist the sheet falls back to humanized item ids.
+        if (!cancelled) setChecklist(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const analyze = useCallback(
+    async (value: string) => {
+      const trimmed = value.trim();
+      if (trimmed.length === 0 || loading) return;
+      setLoading(true);
+      setErrorMessage(null);
+      try {
+        const nextReport = await analyzeText(trimmed);
+        setReport(nextReport);
+      } catch (error) {
+        const message =
+          error instanceof ApiError ? error.message : "Ha ocurrido un error inesperado.";
+        setErrorMessage(message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading],
+  );
+
+  const backToInput = useCallback(() => setReport(null), []);
+  const loadExample = useCallback(
+    (example: string) => {
+      setPastedText(example);
+    },
+    [],
+  );
+
+  if (report === null) {
+    return (
+      <InputScreen
+        text={pastedText}
+        onTextChange={setPastedText}
+        onSubmit={() => void analyze(pastedText)}
+        onLoadExample={loadExample}
+        loading={loading}
+        errorMessage={errorMessage}
+      />
+    );
+  }
+
+  if (report.status === "veda") {
+    return <VedaNotice report={report} onBack={backToInput} />;
+  }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 p-8">
-      <header>
-        <h1 className="text-2xl font-bold">Ficha Técnica</h1>
-        <p className="text-sm text-gray-600">
-          Pega una noticia sobre una encuesta y mira qué información necesaria aparece y
-          cuál falta. No es asesoramiento jurídico: la valoración corresponde a la JEC.
-        </p>
-      </header>
-      <textarea
-        className="min-h-48 w-full rounded-lg border border-gray-300 p-3 text-sm"
-        placeholder="Pega aquí el texto de la noticia..."
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-      />
-      <button
-        type="button"
-        disabled
-        title="Available once ENC-14 lands"
-        className="rounded-lg bg-gray-800 px-4 py-2 font-semibold text-white disabled:opacity-40"
-      >
-        Analizar
-      </button>
-    </main>
+    <Sheet report={report} pastedText={pastedText} checklist={checklist} onBack={backToInput} />
   );
 }
 

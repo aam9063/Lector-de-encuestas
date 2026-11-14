@@ -143,6 +143,28 @@ El proxy `/v1` ya está configurado hacia `http://localhost:8000` en `web/vite.c
 ## Evidencia de verificación
 | Tarea | Prueba | Resultado | Commit |
 |---|---|---|---|
+| T1 | `pnpm --dir web lint` + `typecheck` + `build` | verdes | ver abajo |
+| T2 | Renderizado real en el navegador de Orca: título, aviso legal, textarea, "Analizar" deshabilitado con el campo vacío, dos botones de ejemplo marcados como simulación | correcto | ver abajo |
+| T3 | Click en "Ejemplo completo" → rellena el texto → "Analizar" → ficha con semáforo "Ficha con avisos", bloque formal, 15 filas con nombre en español, icono y motivo | correcto | ver abajo |
+| T4 | Bloque de cálculos: margen declarado ±2,8 y margen teórico ±2,8 con la lectura de `r` | correcto | ver abajo |
+| T15-T1 | Fila del margen expandida: `<mark>` sobre la frase del margen en el texto del usuario y cajón con probabilidad, fuente y versión del cuestionario | correcto | ver abajo |
+| T15-T2 | Estado "Revisar a mano" visible y explicado en la fila | correcto | ver abajo |
+| T15-T3 | Nombres de ítem resueltos desde `GET /v1/checklist` (15 ítems, v1) | correcto | ver abajo |
+
+### Defecto encontrado al recorrer el flujo (y corregido)
+
+El aviso legal aparecía **duplicado**: la pantalla concatenaba su propio texto con el
+`disclaimer` del informe, que dice lo mismo. Ahora el aviso se renderiza una sola vez desde
+el backend, que es la única fuente de verdad. Verificado en el navegador: una sola
+aparición de "Junta Electoral Central" en la pantalla.
+
+### Lo que la prueba funcional confirma del diseño
+
+- La evidencia se resalta con `mark` recortando el texto **del usuario** con `slice(start,
+  end)`: la app no genera esas frases, solo señala posiciones.
+- El aviso legal está en la cabecera de la ficha, visible sin desplazarse.
+- No hay puntuación agregada de calidad en ninguna pantalla: el semáforo describe la
+  información de la noticia, y cada fila explica su motivo.
 
 ## Progreso
 - Delegado al worker.
