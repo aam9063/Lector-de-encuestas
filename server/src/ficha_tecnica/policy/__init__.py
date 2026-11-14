@@ -18,15 +18,25 @@ from ficha_tecnica.policy.states import (
     decide_item,
     finalize_item,
 )
+from ficha_tecnica.policy.veda import (
+    VEDA_NOTICE,
+    VedaConfig,
+    resolve_now,
+    should_block,
+    veda_notice,
+    within_window,
+)
 
 __all__ = [
     "THEORETICAL_MARGINS",
+    "VEDA_NOTICE",
     "ItemDecision",
     "ItemState",
     "Layer",
     "PolicyConfig",
     "Semaphore",
     "Thresholds",
+    "VedaConfig",
     "Weight",
     "assign_semaphore",
     "decide_item",
@@ -37,5 +47,9 @@ __all__ = [
     "lead_verdict",
     "load_policy",
     "margin_is_implausible",
+    "resolve_now",
+    "should_block",
     "theoretical_margin",
+    "veda_notice",
+    "within_window",
 ]

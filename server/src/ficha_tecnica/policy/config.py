@@ -11,6 +11,8 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from ficha_tecnica.policy.veda import VedaConfig
+
 _CONFIG_DIR = Path(__file__).resolve().parents[4] / "config"
 
 
@@ -43,6 +45,7 @@ class PolicyConfig(BaseModel):
     # M5: r = lead / margin, compared against these two boundaries.
     lead_ratio_within_margin: Decimal = Decimal("1.0")
     lead_ratio_aapor_min: Decimal = Decimal("2.0")
+    veda: VedaConfig = VedaConfig()
 
     @model_validator(mode="after")
     def _absent_must_be_below_present(self) -> PolicyConfig:
@@ -69,6 +72,9 @@ def load_policy(path: Path | None = None) -> PolicyConfig:
     margin = data.get("margin") or {}
     if "declared_below_theoretical_ratio" in margin:
         merged["declared_below_theoretical_ratio"] = margin["declared_below_theoretical_ratio"]
+    veda = data.get("veda") or {}
+    if veda:
+        merged["veda"] = veda
     lead = data.get("lead_ratio") or {}
     for source_key, target_key in (
         ("within_margin", "lead_ratio_within_margin"),
