@@ -1,43 +1,79 @@
-# Curated list of pollster name variants for candidate extraction (section 6.1).
-# TODO(ENC-04): maintain and review before the demo; Clef covers what this list misses.
+# Curated list of polling firms and organisms, with the variants seen in Spanish press.
+#
+# Purpose: give the code layer extra evidence for "does the text say who ran the poll?".
+# It is NOT a filter and NOT a whitelist: a pollster missing here is still recognised by
+# Clef, only with less corroborating evidence. So the failure mode of an incomplete list is
+# a weaker evidence row, never a false accusation.
+#
+# Curation rules:
+#   - one entry per organisation, with the name as it is used in the press;
+#   - variants include abbreviations and the forms that appear in bylines;
+#   - no political body, no media outlet, no aggregator: only who does fieldwork;
+#   - a defunct firm stays if its polls still circulate in archived news.
+#
+# TODO: review after the hackathon. The list is deliberately conservative: adding a wrong
+# name would attach evidence to the wrong organisation.
 version: 1
 
 pollsters:
   - name: "Centro de Investigaciones Sociológicas"
-    variants: ["CIS", "Centro de Investigaciones Sociológicas"]
-  - name: "40dB"
-    variants: ["40dB", "40 db"]
+    variants: ["CIS", "Centro de Investigaciones Sociológicas", "Centro de Investigaciones Sociologicas"]
   - name: "GAD3"
     variants: ["GAD3", "GAD 3"]
   - name: "Sigma Dos"
     variants: ["Sigma Dos", "Sigmados"]
-  - name: "Navarro Acuña Asociados"
-    variants: ["Navarro Acuña", "Navarro Acuña Asociados"]
-  - name: "IMOP Institutos de Opinión Pública"
-    variants: ["IMOP", "Institutos de Opinión Pública"]
+  - name: "40dB"
+    variants: ["40dB", "40 db", "40 decibelios"]
+  - name: "IMOP Insights"
+    variants: ["IMOP", "IMOP Insights", "Institutos de Opinión Pública"]
   - name: "Simple Lógica"
     variants: ["Simple Lógica", "Simple Logica"]
-  - name: "Demoscopia"
-    variants: ["Demoscopia", "Demoscopia Servicios de Estudios"]
-  - name: "Lanzadera"
-    variants: ["Lanzadera"]
-  - name: "Cercius Strategic Research"
-    variants: ["Cercius", "Cercius Strategic Research"]
-  - name: "Hamos Consulting"
-    variants: ["Hamos", "Hamos Consulting"]
-  - name: "Sondaje"
-    variants: ["Sondaje"]
-  - name: "MSD Opinión"
-    variants: ["MSD", "MSD Opinión"]
-  - name: "Público/Inside Story"
-    variants: ["Inside Story"]
-  - name: "MyWordMontero"
-    variants: ["MyWordMontero", "My Word Montero"]
-  - name: "Encuesta Justa"
-    variants: ["Encuesta Justa"]
+  - name: "NC Report"
+    variants: ["NC Report", "NCReport"]
+  - name: "Celeste-Tel"
+    variants: ["Celeste-Tel", "Celeste Tel"]
+  - name: "DYM"
+    variants: ["DYM", "DYM Institute", "Dym"]
+  - name: "MyWord"
+    variants: ["MyWord", "My Word"]
+  - name: "SocioMétrica"
+    variants: ["SocioMétrica", "Sociometrica", "Socio Métrica"]
+  - name: "Hamalgama Métrica"
+    variants: ["Hamalgama", "Hamalgama Métrica"]
+  - name: "Cluster17"
+    variants: ["Cluster17", "Cluster 17"]
+  - name: "Data10"
+    variants: ["Data10", "Data 10"]
+  - name: "Target Point"
+    variants: ["Target Point", "TargetPoint"]
+  - name: "Ágora Integral"
+    variants: ["Ágora Integral", "Agora Integral"]
+  - name: "GESOP"
+    variants: ["GESOP", "Gabinete de Estudios Sociales y Opinión Pública"]
+  - name: "Feedback"
+    variants: ["Feedback", "Feedback Research"]
+  - name: "Ikerfel"
+    variants: ["Ikerfel"]
+  - name: "Opina 360"
+    variants: ["Opina 360", "Opina360"]
+  - name: "Ipsos"
+    variants: ["Ipsos"]
+  - name: "YouGov"
+    variants: ["YouGov", "You Gov"]
+  - name: "Metroscopia"
+    variants: ["Metroscopia"]
+  - name: "Demoscopia y Servicios"
+    variants: ["Demoscopia y Servicios", "Demoscopia Servicios de Estudios"]
+  - name: "Infortécnica"
+    variants: ["Infortécnica", "Infortecnica"]
+  - name: "Sondaxe"
+    variants: ["Sondaxe"]
+  - name: "CIS Comunitat Valenciana"
+    variants: ["CIS Comunitat Valenciana"]
 
 # Fictitious pollsters used by the synthetic evaluation corpus (ENC-16), listed for the
-# same reason as the simulation parties.
+# same reason as the simulation parties: without them, the sanitizer and the entity layer
+# never fire during evaluation and the "zero leaks" metric is vacuously true.
 simulation_pollsters:
   - name: "Demoscopia Ficticia S.L."
     variants: ["Demoscopia Ficticia", "Encuestas Noveladas"]
