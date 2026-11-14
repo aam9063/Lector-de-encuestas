@@ -416,3 +416,4 @@ argumento.
 | Día 2 | ENC-18: contrato con fixtures reales y 8 usuarios sobre la cola de 2 | 530 tests |
 | Día 2 | ENC-19: README y guion de demo; E-26 corregido al verificar los textos | 531 tests |
 | Día 2 | `pollsters.yaml` curado (27 casas) y gate nativo de RDD diagnosticado y operativo | 531 tests |
+| Día 2 | README reescrito en español de España con diagramas de arquitectura, flujo, estados y datos | 531 tests |
