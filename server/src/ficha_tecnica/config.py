@@ -27,6 +27,7 @@ class Settings(BaseSettings):
         default="mock",
         validation_alias=AliasChoices("CLEF_PROVIDER", "PROVIDER"),
     )
+    database_path: str = "ficha.db"
     checklist_version: int = 1
     questionnaire_version: int = 1
 
