@@ -34,6 +34,7 @@ from ficha_tecnica.extractor.digest import (
     build_digest_a,
     build_digest_b,
     build_digest_c,
+    build_focused_digest,
     build_state,
 )
 from ficha_tecnica.extractor.entities import find_estimates
@@ -41,9 +42,11 @@ from ficha_tecnica.extractor.metrics import extract_confidence, extract_margin, 
 from ficha_tecnica.extractor.numbers import parse_spanish_number
 from ficha_tecnica.policy import (
     ItemDecision,
+    ItemState,
     PolicyConfig,
     assign_semaphore,
     decide_item,
+    finalize_item,
     fired_rules,
     group_b_flags,
     resolve_now,
@@ -131,31 +134,36 @@ async def analyze(
     digest_b = build_digest_b(text)
     digest_c = build_digest_c(text)
 
-    answers_b = (await provider.ask(build_state(digest_b), _group(questionnaire, "B"))).answers
-    poll_type, poll_type_probs = _poll_type(answers_b)
-    is_electoral = _probability(answers_b.get("b_is_electoral"))
-
-    if within_window(moment, policy.veda) and should_block(
-        when=moment, is_electoral=is_electoral, poll_type=poll_type, veda=policy.veda
-    ):
-        return _veda_report(policy, provider_name, started, text)
-
-    if within_window(moment, policy.veda):
+    inside_window = within_window(moment, policy.veda)
+    if inside_window:
+        # Only group B is needed to decide whether the story is electoral at all, so a
+        # refused story costs one call instead of three.
+        answers_b = (await _ask(provider, digest_b, _group(questionnaire, "B"), "B", calls)).answers
+        poll_type, poll_type_probs = _poll_type(answers_b)
+        is_electoral = _probability(answers_b.get("b_is_electoral"))
+        if should_block(
+            when=moment, is_electoral=is_electoral, poll_type=poll_type, veda=policy.veda
+        ):
+            return _veda_report(policy, provider_name, started, text)
         answers_a = (await _ask(provider, digest_a, _group(questionnaire, "A"), "A", calls)).answers
     else:
-        response_a, _ = await asyncio.gather(
+        # NaN allows two requests in flight and these are exactly the two slots. Group B is
+        # asked once, not twice: it answers both the framing questions and the blackout one.
+        response_a, response_b = await asyncio.gather(
             _ask(provider, digest_a, _group(questionnaire, "A"), "A", calls),
             _ask(provider, digest_b, _group(questionnaire, "B"), "B", calls),
         )
         answers_a = response_a.answers
+        answers_b = response_b.answers
+        poll_type, poll_type_probs = _poll_type(answers_b)
+        is_electoral = _probability(answers_b.get("b_is_electoral"))
 
     quoted = digest_c["quoted_questions"]
     if quoted and (_probability(answers_a.get("a_question_text")) or 0.0) >= 0.80:
         await _ask(provider, digest_c, _group(questionnaire, "C"), "C", calls)
 
     external = _probability(answers_a.get("a_external_sheet"))
-    findings: list[Finding] = []
-    decisions: list[ItemDecision] = []
+    states: dict[str, tuple[float | None, bool, ItemState]] = {}
     for item in checklist.items:
         probability = _probability(answers_a.get(item.id))
         has_candidate = bool(candidates.get(item.id))
@@ -167,14 +175,27 @@ async def analyze(
             policy=policy,
             external_sheet_probability=external,
         )
-        # ENC-12 will turn this into a focused second call; until then it is a review.
+        states[item.id] = (probability, has_candidate, state)
+
+    doubts = [
+        item_id for item_id, (_, _, state) in states.items() if state == "needs_second_reading"
+    ]
+    if doubts:
+        states.update(
+            await _second_reading(text, doubts, states, provider, questionnaire, policy, calls)
+        )
+
+    findings: list[Finding] = []
+    decisions: list[ItemDecision] = []
+    for item in checklist.items:
+        probability, has_candidate, state = states[item.id]
         shown: ItemStatus = "review" if state == "needs_second_reading" else state  # type: ignore[assignment]
         decisions.append(
             ItemDecision(
                 item_id=item.id,
                 layer=item.layer,
                 weight=item.weight,
-                state=state,
+                state=shown,  # type: ignore[arg-type]
             )
         )
         findings.append(
@@ -219,6 +240,45 @@ async def analyze(
         disclaimer=DISCLAIMER,
         latency_ms=int((time.perf_counter() - started) * 1000),
     )
+
+
+async def _second_reading(
+    text: str,
+    doubts: list[str],
+    states: dict[str, tuple[float | None, bool, ItemState]],
+    provider: DecisionProvider,
+    questionnaire: Questionnaire,
+    policy: PolicyConfig,
+    calls: list[dict[str, object]] | None,
+) -> dict[str, tuple[float | None, bool, ItemState]]:
+    """Re-ask only the items in doubt, with a state reduced to their evidence.
+
+    A second look that cannot improve the answer is money wasted, so the questions are
+    narrowed to the doubtful items and the rest of the sheet keeps its first answer.
+    """
+    focused = build_focused_digest(text, doubts)
+    questions = {
+        question_id: question
+        for question_id, question in _group(questionnaire, "A").items()
+        if question_id in doubts
+    }
+    if not questions:
+        return {}
+    answers = (await _ask(provider, focused, questions, "focused", calls)).answers
+
+    updated: dict[str, tuple[float | None, bool, ItemState]] = {}
+    for item_id in doubts:
+        _, has_candidate, _ = states[item_id]
+        probability = _probability(answers.get(item_id))
+        if probability is None:
+            updated[item_id] = (states[item_id][0], has_candidate, "review")
+            continue
+        updated[item_id] = (
+            probability,
+            has_candidate,
+            finalize_item(has_candidate=has_candidate, probability=probability, policy=policy),
+        )
+    return updated
 
 
 def _veda_report(policy: PolicyConfig, provider_name: str, started: float, text: str) -> Report:
