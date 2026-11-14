@@ -164,3 +164,37 @@ def test_thresholds_come_from_configuration_not_from_the_code() -> None:
         )
         == "needs_second_reading"
     )
+
+
+def test_a_confident_absence_wins_over_a_link_to_an_external_sheet() -> None:
+    """ "Refers external" must not swallow every omission.
+
+    Found by the evaluation: every corpus article links the technical sheet, so
+    a_external_sheet came back present with p ~ 0.99 in all of them and all 28 items whose
+    gold was absent came out as refers_external. Recall of omissions was 6.67 %, because
+    the state that means "this is missing" was unreachable.
+
+    When Clef is confident the item is absent from THIS text (p <= absent_max), the story
+    did omit it, whatever it links to. The reference only softens a doubt.
+    """
+    assert (
+        decide(
+            has_candidate=False,
+            probability=0.01,
+            item_id="a_sample_size",
+            external=0.99,
+        )
+        == "absent"
+    )
+
+
+def test_a_confident_absence_wins_even_when_the_text_refers_to_a_sheet() -> None:
+    assert (
+        decide(
+            has_candidate=False,
+            probability=0.10,
+            item_id="a_margin",
+            external=0.95,
+        )
+        == "absent"
+    )

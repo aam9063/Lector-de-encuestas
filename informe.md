@@ -150,16 +150,24 @@ ese test encontró un agujero real (ver E-05 y E-06).
 | E-20 | Aviso legal duplicado en la ficha | Navegador real | media |
 | E-21 | CI: `pnpm/action-setup` sin `package_json_file` | CI en rojo | media |
 | E-22 | Corpus de evaluación sin entidades reconocibles → métrica vacua | Verificación propia del corpus | **alta** |
-| E-23 | Recall de omisiones del 6,67 % | Medición real | **abierto** |
+| E-01 | …recurrente: volvió a pasar al cerrar E-23 | Rutina de commit | media |
+| E-23 | `refers_external` absorbía todas las ausencias → recall 6,67 % | Medición real | **crítica, resuelta** |
+| E-24 | Una paráfrasis de la tasa de respuesta producía una falsa acusación | Medición real, rastro del caso | alta, resuelta |
 
 ### 6.2 Fichas
 
-**E-01 · Commit directo a `dev`**
+**E-01 · Commit directo a `dev`** — *recurrente*
 *Síntoma:* el commit de ENC-03 quedó en `dev` sin rama. *Causa:* no comprobé la rama antes de
 comitear; venía de fusionar y seguí escribiendo. *Arreglo:* `git switch -c feature/...`,
 `git branch -f dev <hash previo>`, merge `--no-ff`. Sin pérdida de trabajo porque el commit
-estaba solo en local. *Prevención:* desde entonces la rama se verifica antes de cada commit;
-el flujo queda escrito en el documento de feature.
+estaba solo en local.
+
+**Volvió a pasar** al cerrar E-23, con el mismo patrón: tras fusionar, seguí trabajando en
+`dev`. La prevención que había escrito —"verificar la rama antes de cada commit"— era
+**de memoria**, y una regla que depende de acordarse no es una prevención. Lo que sirve es
+mecánico: `git branch --show-current` como parte del mismo comando que comitea, de modo que
+el dato aparezca en la salida y una rama equivocada se vea antes de escribir el mensaje.
+Cuando el repo esté protegido con reglas de GitHub, la barrera dejará de depender de mí.
 
 **E-05 · `a_sample_size` no detectaba "1.200 entrevistas"**
 *Síntoma:* ninguno. El worker entregó 64 tests verdes. *Diagnóstico:* escribí un test de
@@ -216,6 +224,33 @@ ahí, cuatro formas de pegado × tres corridas cada una antes de dar algo por ce
 *Prevención de método:* cerca de un umbral se repite; y se prueba la entrada como la produce
 el usuario, no como la produce el test.
 
+**E-23 · `refers_external` absorbía todas las ausencias**
+*Síntoma:* el recall de omisiones daba 6,67 % con 0 % de ítems en revisión: el sistema
+decía "presente" donde faltaba el dato. *Diagnóstico:* en vez de razonar sobre la tabla,
+imprimí por caso lo que el modelo respondía y lo que el pipeline decidía. El modelo
+**acertaba** (p = 0,013), pero el estado final era `refers_external`, no `absent`. *Causa
+raíz:* la tabla 7.2 aplica "remite a ficha externa" cuando `a_external_sheet` ≥ 0,80 y la
+probabilidad del ítem es < 0,50. Todos los artículos del corpus enlazan la ficha técnica al
+final, así que `a_external_sheet` venía presente con p ≈ 0,99 en **todos** los casos y los
+**28 de 28** ítems con gold ausente se convertían en "remite". El estado que significa
+"falta" era inalcanzable. *Arreglo:* una ausencia confiable (p ≤ `absent_max`) se decide
+antes del atajo externo. La noticia omitió el dato; enlazar una ficha no lo devuelve. El
+"remite" queda para la zona gris, donde de verdad no se puede saber. *Resultado:* recall
+6,67 % → **86,67 %**. *Prevención:* dos tests que fijan la prioridad.
+
+**E-24 · Una paráfrasis de la tasa de respuesta producía una falsa acusación**
+*Síntoma:* al arreglar E-23 apareció 1 falsa acusación en 165 ítems, justo en la mutación
+M14, que existe para medirlas. *Diagnóstico:* localicé el caso (`base24-m14`, ítem
+`a_nonresponse`) y comparé base y paráfrasis: el dato estaba en ambas, pero redactado como
+"Respondieron 97 de cada 100 contactados". *Causa raíz:* dos capas a la vez. La pista del
+código solo buscaba "no respond / tasa de respuesta", así que no había candidato; y las
+pistas se comparaban **con distinción de mayúsculas**, de modo que una pista al inicio de
+frase nunca coincidía. Eso último afectaba a toda la tabla en silencio. *Arreglo:* la pista
+de no respuesta cubre también las tasas de respuesta, y todas las pistas se compilan ahora
+sin distinguir mayúsculas. Con candidato presente, la asimetría prohíbe acusar.
+*Resultado:* falsa acusación **0,00 %**. *Prevención:* test de las tres redacciones de una
+tasa de respuesta.
+
 **E-22 · El corpus no podía disparar el saneador ni M5**
 *Síntoma:* los tests del worker estaban verdes y la métrica "fugas del saneador" daba 0.
 *Diagnóstico:* en vez de leer los tests, conté sobre el corpus: **0 de 280** casos producían
@@ -262,19 +297,25 @@ Primera corrida real contra Clef, 12 casos, baseline B4 (sistema completo):
 | Latencia | p50 461 ms / p95 867 ms | frente a B1/B2 | Rápido, sin comparación disponible |
 | Fugas del saneador | **0** | 0 | Cumple, y ahora de forma no vacua |
 
-**Hallazgo abierto (E-23).** El sistema casi no acusa en falso, pero también casi no detecta
-omisiones: predice "presente" donde el gold dice "ausente". Con 0 % de ítems en revisión y
-6,67 % de recall, la asimetría está funcionando tan bien que la herramienta pierde su
-utilidad. Hipótesis a comprobar, en orden:
+### Antes y después de E-23 y E-24
 
-1. El digest A incluye frases técnicas que mencionan el ítem por otra vía, así que el modelo
-   responde "presente" con razón aunque el dato concreto se haya borrado.
-2. Las preguntas del cuestionario son demasiado indulgentes ("¿el texto dice cuántas personas
-   fueron entrevistadas?" admite una respuesta afirmativa por proximidad).
-3. Las mutaciones de deleción no son limpias: quitan la frase pero dejan pistas.
+| Métrica | Primera medición | Tras E-23 y E-24 | Objetivo |
+|---|---|---|---|
+| Falsa acusación | 0,00 % (0/165) | **0,00 %** (0/165) | ≤ 2 % |
+| **Recall de omisiones** | **6,67 %** | **86,67 %** | ≥ 85 % |
+| Ítems en revisar | 0,00 % | 10,00 % | ≤ 20 % |
+| Fugas del saneador | 0 | 0 | 0 |
+| Latencia p50 | 461 ms | 872 ms | — |
 
-Sin resolver esto, la gráfica de la demo contaría media verdad. Se reporta tal cual, como
-pide la ficha: *si los resultados no lo respaldan, se cuentan como son*.
+**Los tres objetivos primarios se cumplen.** El diagnóstico no era el que yo suponía: las
+tres hipótesis que había anotado (digest demasiado generoso, preguntas indulgentes,
+mutaciones sucias) eran todas falsas. El modelo acertaba en cada caso; el que se equivocaba
+era mi implementación de la tabla 7.2, que convertía toda ausencia en "remite" porque todos
+los artículos enlazan la ficha técnica.
+
+El coste de latencia se duplica porque el sistema ahora decide más ítems (menos "remite"
+gratuito) y hace más segundas lecturas. Sigue muy por debajo de un juez LLM, que era el
+argumento.
 
 ---
 
@@ -282,7 +323,7 @@ pide la ficha: *si los resultados no lo respaldan, se cuentan como son*.
 
 | Riesgo | Estado | Mitigación actual |
 |---|---|---|
-| Recall real desconocido | Abierto (E-23) | Medición reproducible con el harness |
+| Recall de omisiones | Resuelto: 86,67 % (objetivo 85 %) | Medición reproducible con el harness |
 | `config/pollsters.yaml` a medio curar | Abierto | Clef cubre lo que la lista no conoce; evidencia mostrada más pobre |
 | Ventana de veda sin confirmar con la JEC | Abierto (`[VERIFICAR]`) | Diseño conservador y configurable |
 | Modo URL con `fetch` seguro | No implementado | La API responde 501 con un mensaje explícito |

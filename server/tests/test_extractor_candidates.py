@@ -110,3 +110,13 @@ def test_every_candidate_slice_reproduces_its_sentence() -> None:
     for spans in all_candidates(NEWS).values():
         for span in spans:
             assert NEWS[span.start : span.end] in EXPECTED_SENTENCES
+
+
+def test_a_response_rate_counts_as_a_nonresponse_statement() -> None:
+    """ "Respondieron 97 de cada 100" says how many did not answer, without the word "no"."""
+    for texto in (
+        "La tasa de respuesta fue del 97 %.",
+        "Respondieron 97 de cada 100 contactados.",
+        "El porcentaje de respuesta fue del 97 %.",
+    ):
+        assert candidates_for(texto, "a_nonresponse"), texto
