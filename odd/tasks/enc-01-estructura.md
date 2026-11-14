@@ -57,7 +57,7 @@ El repo existe sin commits. Sin estructura ni CI no se puede empezar el núcleo 
 | T3 | `pnpm lint` + `typecheck` + `build` | verdes | 2253ad5 |
 | T4 | `uv run pytest` (8, incluye config YAMLs) | verde | 3ec050e |
 | T5 | hook activo (`core.hooksPath=.githooks`), workflow conforme a 15.9 | OK | 7050a86 |
-| T6 | merge `--no-ff` a `dev` + push de ramas | OK | ver `dev` |
+| T6 | merge `--no-ff` a `dev` (4ed5355), push de `main`/`dev`/`chore/bootstrap` | OK, CI en dev en verde (43580414396) | 4ed5355 |
 | Extra | llamada real a Clef: contrato confirmado (noul/choice/score) | 200 OK, fixtures capturadas | 38581db |
 
 Nota: `.env.example` fue bloqueado por la guarda de seguridad de Gentle AI (patrón
