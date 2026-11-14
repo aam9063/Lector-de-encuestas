@@ -1,6 +1,7 @@
 """Application settings. The API key lives only in the repo-root .env, never in code."""
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -21,7 +22,11 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("NAN_KEY", "NAN_API_KEY"),
     )
     nan_base_url: str = "https://api.nan.builders"
-    provider: str = "mock"
+    # "clef" is the model name; "nan" is the provider that serves it.
+    provider: Literal["nan", "mock"] = Field(
+        default="mock",
+        validation_alias=AliasChoices("CLEF_PROVIDER", "PROVIDER"),
+    )
     checklist_version: int = 1
     questionnaire_version: int = 1
 
