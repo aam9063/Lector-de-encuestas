@@ -81,3 +81,17 @@ def test_finds_the_confidence_level(text: str, expected: Decimal) -> None:
 
 def test_a_plain_percentage_is_not_a_confidence_level() -> None:
     assert extract_confidence("El Partido Azul obtendria un 95 % de los votos") is None
+
+
+def test_a_margin_written_as_a_plain_percentage_is_read() -> None:
+    """Found on a real article: "con un margen de error del 0,5%" returned None.
+
+    The pattern ended with a word boundary after the optional "%", and between "%" and a
+    space there is no boundary, so every margin written without a "±" was invisible.
+    """
+    for texto, esperado in (
+        ("con un margen de error del 0,5% para el conjunto de la muestra", Decimal("0.5")),
+        ("un margen de error de 2,8 % al 95 % de confianza", Decimal("2.8")),
+        ("margen de error del 3%", Decimal("3")),
+    ):
+        assert extract_margin(texto) == esperado, texto
