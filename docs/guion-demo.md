@@ -23,6 +23,8 @@ Checklist:
 - [ ] La pestaña está en <http://127.0.0.1:5173> con el campo vacío.
 - [ ] El texto de la demo está en el portapapeles, no escrito a mano en vivo.
 - [ ] Los tres textos de abajo están en un archivo abierto, listos para pegar.
+- [ ] La URL del caso real (abajo) responde **ese mismo día**: los medios cambian su política
+      de acceso a menudo y una captura de ayer no garantiza nada.
 - [ ] Plan B: `informe.md` abierto en la tabla de medición, por si la red falla.
 
 Ensayalo una vez completo. La ficha tarda entre 0,4 y 1,8 segundos: la demo se sostiene sola,
@@ -125,6 +127,45 @@ SIMULACIÓN. El estudio de Demoscopia Ficticia S.L., cuya sede está en la calle
 Los tres están verificados contra el modelo real y el código de `dev`. Si algún texto cambia
 de color, **no es la demo**: es un bug, y conviene saberlo antes de entrar.
 
+## Cuarto caso: una noticia real
+
+Los tres textos anteriores son simulaciones, con lo bueno y lo malo que eso tiene: dan control
+total, pero pueden parecer hechas a medida del sistema. Este caso cierra esa duda con una
+noticia real, **por URL** y sin copiar su texto:
+
+- URL: `https://es.euronews.com/2026/11/13/arranca-la-campana-electoral-los-sondeos-dibujan-dos-escenarios-enfrentados`
+- Verificado el 14/11/2026: la descarga funciona y devuelve unos 4.900 caracteres de texto.
+
+Resultado esperado, comprobado con el modelo real:
+
+| Campo | Valor |
+|---|---|
+| Semáforo | rojo |
+| Tipo de sondeo | estimación de intención de voto |
+| Estados | 7 presentes, 7 ausentes, 1 en revisar |
+| Muestra | 45.074 entrevistas (estudio preelectoral del CIS) |
+| Margen declarado / teórico | 0,5 % / 0,5 % — coherentes |
+| `r` | 3,6 — diferencia amplia frente al margen |
+
+Qué decir:
+
+> «Esta es una noticia real, de hoy. Y fíjate en lo que te dice la ficha: la noticia habla de
+> varios sondeos y de ninguno da la ficha técnica completa. No está diciendo que el medio lo
+> haga mal; está diciendo que esa información no está en el texto, para que tú decidas si la
+> necesitas.»
+
+**Aviso editorial.** La ficha describe la información que da la noticia, nunca la calidad del
+medio ni de la encuesta. Si el semáforo sale rojo, decirlo en voz alta: es una descripción, no
+una acusación.
+
+**Por qué no está el texto aquí.** Las noticias reales se referencian por URL y no se
+redistribuyen; la aplicación tampoco las almacena, solo un hash. Ese es uno de los argumentos
+del producto y conviene no contradecirlo en el propio repositorio.
+
+**Si la URL falla en directo**, sigue con los tres textos simulados: el resto del guion no
+depende de este caso. Muchos medios devuelven `403` o `406` a clientes automatizados —lo hacen
+`as.com` y `elperiodico.com`, comprobados— y eso no es un fallo de la aplicación.
+
 ## Si algo falla en vivo
 
 | Fallo | Qué hacer |
@@ -134,6 +175,7 @@ de color, **no es la demo**: es un bug, y conviene saberlo antes de entrar.
 | La ficha tarda | "está hablando con el modelo en vivo", que es la verdad |
 | Sale un ítem en gris que esperabas verde | Es una oportunidad, no un problema: "acá la app prefirió no decidir" |
 | La veda no bloquea | Comprobar `VEDA_NOW` en el entorno del proceso |
+| La URL real devuelve 403 o 406 | Es su política anti-bots: pasar a los textos simulados, sin más |
 
 ## Lo que no se muestra
 
