@@ -39,6 +39,7 @@ from ficha_tecnica.extractor.digest import (
 )
 from ficha_tecnica.extractor.entities import find_estimates
 from ficha_tecnica.extractor.metrics import extract_confidence, extract_margin, extract_sample_size
+from ficha_tecnica.extractor.normalize import strip_paste_artifacts
 from ficha_tecnica.extractor.numbers import parse_spanish_number
 from ficha_tecnica.policy import (
     ItemDecision,
@@ -125,6 +126,10 @@ async def analyze(
     started = time.perf_counter()
     if not text.strip():
         raise ValueError("text must not be empty")
+
+    # Fences and other paste artifacts are blanked, never deleted: every span the caller
+    # gets back must still point at the same character of the text it pasted.
+    text = strip_paste_artifacts(text)
 
     checklist = load_checklist()
     questionnaire = load_questionnaire()
