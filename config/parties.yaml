@@ -44,3 +44,29 @@ parties:
     variants: ["Se Acabó La Fiesta", "SALF"]
   - name: "Navarra Suma"
     variants: ["Navarra Suma"]
+
+# Fictitious formations used by the synthetic evaluation corpus (ENC-16). They are listed
+# here so the corpus exercises the SAME code path as a real story: without them, vote
+# estimate spans, rule M5 and the output sanitizer never fire during evaluation, and the
+# "zero leaks" metric would be vacuously true. Same treatment as every other formation.
+simulation_parties:
+  - name: "Partido Cohete"
+    variants: ["Partido Cohete", "Cohete"]
+  - name: "Partido Ancla"
+    variants: ["Partido Ancla", "Ancla"]
+  - name: "Partido Brisa"
+    variants: ["Partido Brisa", "Brisa"]
+  - name: "Partido Brujula"
+    variants: ["Partido Brujula", "Partido Brújula", "Brujula", "Brújula"]
+  - name: "Partido Cauce"
+    variants: ["Partido Cauce", "Cauce"]
+  - name: "Partido Faro"
+    variants: ["Partido Faro", "Faro"]
+  - name: "Partido Farol"
+    variants: ["Partido Farol", "Farol"]
+  - name: "Partido Marea"
+    variants: ["Partido Marea", "Marea"]
+  - name: "Partido Timon"
+    variants: ["Partido Timon", "Partido Timón", "Timon", "Timón"]
+  - name: "Partido Vela"
+    variants: ["Partido Vela", "Vela"]

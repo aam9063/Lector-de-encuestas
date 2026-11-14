@@ -22,6 +22,10 @@ node_modules/
 web/dist/
 *.local
 
+# Evaluation output
+eval/chart.svg
+eval/*.md
+
 # Local database
 *.db
 *.db-journal

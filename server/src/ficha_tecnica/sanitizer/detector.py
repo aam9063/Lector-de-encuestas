@@ -29,9 +29,12 @@ def party_variants() -> tuple[str, ...]:
     """Every polled formation's name and variants, longest first."""
     with (_CONFIG_DIR / "parties.yaml").open(encoding="utf-8") as stream:
         data: dict[str, list[dict[str, object]]] = yaml.safe_load(stream)
+    # The simulation formations are part of the list too, otherwise the detector would be
+    # blind to exactly the corpus the evaluation uses to prove it works.
+    parties = [*data["parties"], *data.get("simulation_parties", [])]
     variants = {
         str(variant)
-        for party in data["parties"]
+        for party in parties
         for variant in [party["name"], *party["variants"]]  # type: ignore[misc]
     }
     return tuple(sorted(variants, key=lambda item: (-len(item), item)))
