@@ -22,6 +22,10 @@ node_modules/
 web/dist/
 *.local
 
+# Local database
+*.db
+*.db-journal
+
 # uv
 uv.lock.bak
 
