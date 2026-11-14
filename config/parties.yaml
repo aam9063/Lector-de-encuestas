@@ -1,0 +1,72 @@
+# National parties for voting-estimate masking (sections 6.1 and 7.5).
+# Complete list, identical treatment for every formation: the output never names a
+# party or reproduces its figures. TODO(ENC-04): review before the demo.
+version: 1
+
+parties:
+  - name: "PSOE"
+    variants: ["PSOE", "Partido Socialista", "Partido Socialista Obrero Español"]
+  - name: "PP"
+    variants: ["PP", "Partido Popular"]
+  - name: "Vox"
+    variants: ["Vox", "VOX"]
+  - name: "Sumar"
+    variants: ["Sumar", "Movimiento Sumar"]
+  - name: "Podemos"
+    variants: ["Podemos"]
+  - name: "Izquierda Unida"
+    variants: ["Izquierda Unida", "IU"]
+  - name: "Ciudadanos"
+    variants: ["Ciudadanos", "Cs"]
+  - name: "ERC"
+    variants: ["ERC", "Esquerra Republicana"]
+  - name: "Junts"
+    variants: ["Junts", "Junts per Catalunya"]
+  - name: "PNV"
+    variants: ["PNV", "Partido Nacionalista Vasco", "Euzko Alderdi Jeltzalea"]
+  - name: "EH Bildu"
+    variants: ["EH Bildu", "Euskal Herria Bildu"]
+  - name: "BNG"
+    variants: ["BNG", "Bloque Nacionalista Galego"]
+  - name: "CUP"
+    variants: ["CUP", "Candidatura d'Unitat Popular"]
+  - name: "Coalición Canaria"
+    variants: ["Coalición Canaria", "CC"]
+  - name: "UPN"
+    variants: ["UPN", "Unión del Pueblo Navarro"]
+  - name: "Más País"
+    variants: ["Más País", "Mas Pais"]
+  - name: "PACMA"
+    variants: ["PACMA"]
+  - name: "Alianza Verde"
+    variants: ["Alianza Verde"]
+  - name: "Se Acabó La Fiesta"
+    variants: ["Se Acabó La Fiesta", "SALF"]
+  - name: "Navarra Suma"
+    variants: ["Navarra Suma"]
+
+# Fictitious formations used by the synthetic evaluation corpus (ENC-16). They are listed
+# here so the corpus exercises the SAME code path as a real story: without them, vote
+# estimate spans, rule M5 and the output sanitizer never fire during evaluation, and the
+# "zero leaks" metric would be vacuously true. Same treatment as every other formation.
+simulation_parties:
+  - name: "Partido Cohete"
+    variants: ["Partido Cohete", "Cohete"]
+  - name: "Partido Ancla"
+    variants: ["Partido Ancla", "Ancla"]
+  - name: "Partido Brisa"
+    variants: ["Partido Brisa", "Brisa"]
+  - name: "Partido Brujula"
+    variants: ["Partido Brujula", "Partido Brújula", "Brujula", "Brújula"]
+  - name: "Partido Cauce"
+    variants: ["Partido Cauce", "Cauce"]
+  - name: "Partido Faro"
+    variants: ["Partido Faro", "Faro"]
+  - name: "Partido Farol"
+    variants: ["Partido Farol", "Farol"]
+  - name: "Partido Marea"
+    variants: ["Partido Marea", "Marea"]
+  - name: "Partido Timon"
+    variants: ["Partido Timon", "Partido Timón", "Timon", "Timón"]
+  - name: "Partido Vela"
+    variants: ["Partido Vela", "Vela"]

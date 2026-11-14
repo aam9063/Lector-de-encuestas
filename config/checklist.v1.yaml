@@ -1,0 +1,82 @@
+# Checklist v1: items of the reading sheet (section 6.3 of the design doc).
+# Layer "formal" follows article 69 of LOREG; "methodological" follows professional
+# guides (AAPOR, Roper, ESOMAR) and is advisory, never a legal claim.
+# weight: high | medium | low (drives the semaphore, section 7.4)
+version: 1
+
+items:
+  - id: a_entity
+    layer: formal
+    weight: high
+    base: "LOREG art. 69.1.a"
+    question: "Does the text state which company or body conducted the poll?"
+  - id: a_entity_address
+    layer: formal
+    weight: medium
+    base: "LOREG art. 69.1.a"
+    question: "Does the text state the address or seat of the pollster?"
+  - id: a_client
+    layer: formal
+    weight: high
+    base: "LOREG art. 69.1.a"
+    question: "Does the text state who commissioned or funded the poll?"
+  - id: a_sample_size
+    layer: formal
+    weight: high
+    base: "LOREG art. 69.1.b"
+    question: "Does the text state how many people were interviewed?"
+  - id: a_margin
+    layer: formal
+    weight: high
+    base: "LOREG art. 69.1.b"
+    question: "Does the text state a margin of error?"
+  - id: a_confidence
+    layer: methodological
+    weight: low
+    base: "AAPOR"
+    question: "Does the text state the confidence level of the margin of error?"
+  - id: a_universe
+    layer: formal
+    weight: medium
+    base: "LOREG art. 69.1.b"
+    question: "Does the text state the population the survey represents (scope and universe)?"
+  - id: a_sampling_system
+    layer: formal
+    weight: medium
+    base: "LOREG art. 69.1.b"
+    question: "Does the text explain the sampling system (random, stratified, quota, panel)?"
+  - id: a_selection_procedure
+    layer: formal
+    weight: medium
+    base: "LOREG art. 69.1.b"
+    question: "Does the text explain how respondents were selected or contacted?"
+  - id: a_mode
+    layer: methodological
+    weight: low
+    base: "AAPOR"
+    question: "Does the text state how interviews were conducted (phone, internet, face-to-face)?"
+  - id: a_fieldwork_dates
+    layer: formal
+    weight: high
+    base: "LOREG art. 69.1.b"
+    question: "Does the text state when the fieldwork took place?"
+  - id: a_question_text
+    layer: formal
+    weight: medium
+    base: "LOREG art. 69.1 [VERIFICAR exact wording]"
+    question: "Does the text reproduce the exact wording of the questions?"
+  - id: a_nonresponse
+    layer: formal
+    weight: low
+    base: "LOREG art. 69.1 [VERIFICAR exact wording]"
+    question: "Does the text state how many people did not answer each question?"
+  - id: a_weighting
+    layer: methodological
+    weight: low
+    base: "Professional guides"
+    question: "Does the text mention that data were weighted?"
+  - id: a_external_sheet
+    layer: auxiliary
+    weight: low
+    base: "Design decision"
+    question: "Does the text refer to a technical sheet published elsewhere?"

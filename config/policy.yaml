@@ -1,0 +1,50 @@
+# Policy v1 (sections 7.2 and 7.6). High-risk area: accusation thresholds and the
+# blackout switch. Changes require review (RDD high) and evaluation evidence.
+policy:
+  version: 1
+  thresholds:
+    present_with_candidate: 0.50    # code found a candidate and Clef agrees
+    present_without_candidate: 0.80 # Clef alone must be very sure
+    absent_max: 0.10                # "absent" only when code found nothing either
+    gray_band: [0.20, 0.80]         # triggers a focused second reading (formal layer only)
+  second_reading_for_layers: [formal]
+  headline_overreach_flag_min_score: 3   # index into levels starting at "Nada"
+  prediction_flag_min_p: 0.70
+  subgroup_flag_min_p: 0.70
+  self_selected_flag_min_p: 0.60
+  # Section 7.3: M5 fires when a decisive lead sits under twice the margin.
+  lead_decisive_flag_min_p: 0.70
+
+# Margin coherence rule M4: declared margin below 90% of the theoretical
+# e = z * sqrt(0.25 / n) flags a warning, never an error.
+margin:
+  z_95: 1.96
+  z_95_5: 2.0
+  declared_below_theoretical_ratio: 0.90
+
+# Lead-vs-margin rule M5 (AAPOR): r = lead / margin.
+lead_ratio:
+  within_margin: 1.0
+  aapor_min: 2.0
+  flag_if_below_and_lead_decisive: 2.0
+
+# Blackout (veda) [VERIFICAR]: publication of electoral polls forbidden during the
+# five days before voting (LOREG art. 69.7; JEC calendar, section 4.3).
+# Analyzing a news story is not publishing it, but the design is conservative.
+veda:
+  mode: strict            # strict | off
+  start: "2026-11-24T00:00:00+01:00"
+  end: "2026-11-30T00:00:00+01:00"
+  block_if_p_electoral_at_least: 0.35
+
+# Semaphore (section 7.4): describes the information the news provides,
+# not the quality of the poll or the pollster.
+semaphore:
+  red:
+    - "any high-weight formal item absent"
+    - "M5 fires"
+    - "M11 fires"
+  amber:
+    - "any medium-weight formal item absent"
+    - "items in review"
+    - "M4, M6, M7 or M9 fire"

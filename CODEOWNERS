@@ -1,0 +1,4 @@
+# Albert reviews and merges everything; these rules only set the default reviewer.
+*                       @aam9063
+/.github/               @aam9063
+/.githooks/             @aam9063

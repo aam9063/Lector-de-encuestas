@@ -1,0 +1,42 @@
+name: ci
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev]
+permissions:
+  contents: read
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.14"
+      - working-directory: server
+        run: uv sync --frozen
+      - working-directory: server
+        run: uv run ruff check .
+      - working-directory: server
+        run: uv run ruff format --check .
+      - working-directory: server
+        run: uv run pyright
+      - working-directory: server
+        run: uv run pytest
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # version read from "packageManager" in web/package.json
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm --dir web install --frozen-lockfile
+      - run: pnpm --dir web lint
+      - run: pnpm --dir web typecheck
+      - run: pnpm --dir web build

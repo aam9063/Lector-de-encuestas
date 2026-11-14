@@ -1,0 +1,216 @@
+# Guion de demo — 3 minutos
+
+El objetivo no es "miren lo que construimos", sino **"miren lo que nadie comprueba y nosotros
+sí, sin acusar en falso y sin soltar un número de más"**.
+
+## Antes de entrar (5 minutos antes)
+
+```bash
+# 1. La clave, si no está
+test -f .env || echo 'NAN_KEY=tu-clave' > .env
+
+# 2. Backend con el modelo real (comprobar que dice provider nan)
+cd server && uv run uvicorn ficha_tecnica.api.app:app --port 8000
+curl -s http://127.0.0.1:8000/v1/health        # -> {"status":"ok","provider":"nan"}
+
+# 3. Web, en otra terminal
+pnpm --dir web dev
+```
+
+Checklist:
+
+- [ ] `provider` dice **nan**. Si dice `mock`, la ficha es de mentira y el jurado puede notarlo.
+- [ ] La pestaña está en <http://127.0.0.1:5173> con el campo vacío.
+- [ ] El texto de la demo está en el portapapeles, no escrito a mano en vivo.
+- [ ] Los tres textos de abajo están en un archivo abierto, listos para pegar.
+- [ ] La URL del caso real (abajo) responde **ese mismo día**: los medios cambian su política
+      de acceso a menudo y una captura de ayer no garantiza nada.
+- [ ] Plan B: `informe.md` abierto en la tabla de medición, por si la red falla.
+
+Ensayalo una vez completo. La ficha tarda entre 0,4 y 1,8 segundos: la demo se sostiene sola,
+no hace falta relleno.
+
+## 0:00 — El problema
+
+> "Hay encuestas en todas las noticias y casi nadie comprueba si la noticia da lo necesario
+> para interpretarlas. Este titular dice quién gana. ¿Podés saber con eso si la encuesta
+> aguanta? Ni vos ni yo. Y la noticia no te lo va a decir."
+
+## 0:25 — Pegar y analizar (noticia incompleta)
+
+Pegá el **texto B** (abajo) y pulsá Analizar.
+
+> "Semáforo rojo. No dice cuántas personas fueron entrevistadas, no dice el margen, no dice
+> quién la encargó. La aplicación no opina del resultado: te dice qué falta."
+
+**Señalá el aviso legal de la cabecera**: *"No es asesoramiento jurídico: la valoración
+corresponde a la Junta Electoral Central."*
+
+## 1:00 — Abrir un ítem y ver la evidencia
+
+Clic en la fila **"Margen de error"**.
+
+> "Acá está la frase exacta del texto que lo demuestra, resaltada sobre tu propia noticia.
+> La app no inventa la cita: te muestra dónde mirar, y abajo la probabilidad del modelo con
+> la versión del cuestionario."
+
+**Punto clave para el jurado:** la app devuelve **posiciones**, no frases. El texto no se
+regenera y no se guarda: en la base solo queda un hash.
+
+## 1:25 — La noticia completa (verde)
+
+Pegá el **texto A**.
+
+> "Misma encuesta, ahora con la ficha técnica completa: verde. Y fijate en lo que **no** ves:
+> ningún número de intención de voto, ningún nombre de partido en ningún hallazgo. No es un
+> olvido: es una regla dura, y hay un detector independiente que verifica que no se filtre."
+
+## 1:50 — La prueba de fuego: una paráfrasis
+
+Pegá el **texto C** (mismo contenido que A, otra redacción).
+
+> "Esto es exactamente lo mismo, escrito distinto: 'error muestral' en vez de 'margen de
+> error', 'encuestados' en vez de 'entrevistas'. Sigue verde. Si el sistema acusara acá,
+> estaría acusando en falso a un medio por cómo escribió, no por lo que dijo."
+
+## 2:15 — Los números
+
+Mostrá `informe.md`, sección de medición.
+
+> "Sobre el corpus sintético, con el modelo real: **cero por ciento de falsa acusación** en
+> 165 ítems, **86,67 % de recall** de omisiones reales, diez por ciento en 'revisar a mano',
+> cero fugas del saneador, y entre 0,4 y 1,8 segundos por ficha.
+>
+> Y una limitación que preferimos decir: los otros dos sistemas de la comparación son jueces
+> LLM y no pudimos medirlos, así que no los graficamos. Preferimos un hueco declarado a un
+> número inventado."
+
+## 2:40 — La veda
+
+Reiniciá el backend con la fecha simulada:
+
+```bash
+VEDA_NOW=2026-11-25T10:00:00+01:00 uv run uvicorn ficha_tecnica.api.app:app --port 8000
+```
+
+Pegá el texto A otra vez.
+
+> "Durante los cinco días previos a la votación, la ley prohíbe publicar sondeos electorales.
+> Analizar no es publicar, pero preferimos no arriesgar: la app se niega y explica por qué.
+> Las encuestas de otros temas se siguen analizando."
+
+Cierre:
+
+> "No dice si la encuesta es verdadera. Dice si la noticia te da lo necesario para juzgarla.
+> Y cuando no está seguro, lo dice."
+
+## Los tres textos
+
+**A — ficha completa (verde)**
+
+```
+SIMULACIÓN. Demoscopia Ficticia S.L., con sede en la calle Imaginaria 12 de Madrid, realizó para la Fundación Imaginaria un sondeo telefónico con 1.200 entrevistas entre el 3 y el 8 de noviembre a personas con derecho a voto residentes en la comunidad. El margen de error es de 2,8 puntos para un nivel de confianza del 95 %. El muestreo fue aleatorio estratificado y las personas se seleccionaron por marcación aleatoria. Ante la pregunta «¿A qué formación votaría si se celebraran elecciones este domingo?», el 5 % no contestó. Los datos se ponderaron por sexo, edad y tamaño del municipio.
+```
+
+**B — sin muestra ni margen (rojo)**
+
+```
+SIMULACIÓN. Según un sondeo de Demoscopia Ficticia S.L., el Partido Popular ganaría las elecciones. El Partido Popular obtendría un 34 % de los votos y el PSOE un 26 %.
+```
+
+**C — la misma que A, parafraseada (verde)**
+
+```
+SIMULACIÓN. El estudio de Demoscopia Ficticia S.L., cuya sede está en la calle Imaginaria 12 de Madrid, fue encargado por la Fundación Imaginaria y se hizo por teléfono con 1.200 encuestados del 3 al 8 de noviembre, entre personas con derecho a voto de la comunidad. Presenta un error muestral de 2,8 puntos con una confianza del 95 %. El procedimiento fue un muestreo aleatorio estratificado con selección por marcación aleatoria. A la pregunta «¿A qué formación votaría si se celebraran elecciones este domingo?» no respondió el 5 %. Los resultados se ponderaron por sexo, edad y tamaño del municipio.
+```
+
+Los tres están verificados contra el modelo real y el código de `dev`. Si algún texto cambia
+de color, **no es la demo**: es un bug, y conviene saberlo antes de entrar.
+
+## Cuarto caso: una noticia real
+
+Los tres textos anteriores son simulaciones, con lo bueno y lo malo que eso tiene: dan control
+total, pero pueden parecer hechas a medida del sistema. Este caso cierra esa duda con una
+noticia real, **por URL** y sin copiar su texto:
+
+- URL: `https://es.euronews.com/2026/11/13/arranca-la-campana-electoral-los-sondeos-dibujan-dos-escenarios-enfrentados`
+- Verificado el 14/11/2026: la descarga funciona y devuelve unos 4.900 caracteres de texto.
+
+Resultado esperado, comprobado con el modelo real:
+
+| Campo | Valor |
+|---|---|
+| Semáforo | rojo |
+| Tipo de sondeo | estimación de intención de voto |
+| Estados | 7 presentes, 7 ausentes, 1 en revisar |
+| Muestra | 45.074 entrevistas (estudio preelectoral del CIS) |
+| Margen declarado / teórico | 0,5 % / 0,5 % — coherentes |
+| `r` | 3,6 — diferencia amplia frente al margen |
+
+Qué decir:
+
+> «Esta es una noticia real, de hoy. Y fíjate en lo que te dice la ficha: la noticia habla de
+> varios sondeos y de ninguno da la ficha técnica completa. No está diciendo que el medio lo
+> haga mal; está diciendo que esa información no está en el texto, para que tú decidas si la
+> necesitas.»
+
+**Aviso editorial.** La ficha describe la información que da la noticia, nunca la calidad del
+medio ni de la encuesta. Si el semáforo sale rojo, decirlo en voz alta: es una descripción, no
+una acusación.
+
+**Por qué no está el texto aquí.** Las noticias reales se referencian por URL y no se
+redistribuyen; la aplicación tampoco las almacena, solo un hash. Ese es uno de los argumentos
+del producto y conviene no contradecirlo en el propio repositorio.
+
+**Si la URL falla en directo**, sigue con los tres textos simulados: el resto del guion no
+depende de este caso. Muchos medios devuelven `403` o `406` a clientes automatizados —lo hacen
+`as.com` y `elperiodico.com`, comprobados— y eso no es un fallo de la aplicación.
+
+## Si algo falla en vivo
+
+| Fallo | Qué hacer |
+|---|---|
+| El backend no responde | Reiniciarlo; si no arranca, mostrar la numeración de la tabla de medición y seguir hablando |
+| `provider` dice `mock` | Decirlo en voz alta: "esto es el modo sin modelo, para ver el flujo". No fingir |
+| La ficha tarda | "está hablando con el modelo en vivo", que es la verdad |
+| Sale un ítem en gris que esperabas verde | Es una oportunidad, no un problema: "acá la app prefirió no decidir" |
+| La veda no bloquea | Comprobar `VEDA_NOW` en el entorno del proceso |
+| La URL real devuelve 403 o 406 | Es su política anti-bots: pasar a los textos simulados, sin más |
+
+## Lo que no se muestra
+
+- No se muestra el panel interno de evaluación: no hace falta y no está en la interfaz.
+- No se pega una noticia real que esté dentro de la ventana de veda.
+- No se promete comparación contra jueces LLM: no está medida.
+
+## Preguntas del jurado
+
+**«¿Las fechas de la veda son correctas?»**
+> «Son un supuesto declarado, no una consulta respondida. El plazo de una hackathon no da para
+> una consulta formal a la Junta Electoral Central, así que aplicamos la lectura literal de los
+> cinco días anteriores y lo dejamos conservador. Es un valor de configuración: si la JEC dice
+> otra cosa, se corrige en dos líneas, sin tocar código. Preferimos decirlo a fingir que lo
+> verificamos.»
+
+**«¿Cómo sé que no acusa en falso?»**
+> «Cero por ciento en 165 ítems, medido con el modelo real. La mutación que lo prueba es una
+> paráfrasis que no cambia el contenido: si el sistema acusara ahí, estaría acusando por cómo
+> se escribió, no por lo que se dijo. Además, con evidencia del código un ítem no puede quedar
+> como ausente: hay un test que lo comprueba incluso con probabilidad cero.»
+
+**«¿Por qué no dais una nota de calidad de la encuesta?»**
+> «Porque no podemos sostenerla. Lo que sí podemos sostener es qué información da la noticia, y
+> eso se comprueba ítem por ítem. Una nota única sería un número inventado con apariencia de
+> rigor.»
+
+**«¿Y si la encuesta es un fraude?»**
+> «No es lo que resolvemos, y decirlo forma parte del producto: no verificamos si la encuesta es
+> verdadera. Verificamos si la noticia te da lo necesario para juzgarla.»
+
+**«¿Cuánto tarda y cuánto cuesta?»**
+> «Entre 0,4 y 1,8 segundos por ficha, con dos o tres llamadas al modelo. El semáforo de dos
+> peticiones en vuelo es el límite que impone NaN y está probado con ocho usuarios simultáneos.»
+
+**«¿Qué no habéis podido medir?»**
+> «La comparación con jueces LLM: necesitaríamos acceso a un modelo de chat y no lo tenemos. Lo
+> decimos en la tabla en vez de rellenar el hueco con una cifra inventada.»
