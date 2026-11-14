@@ -12,6 +12,8 @@ policy:
   prediction_flag_min_p: 0.70
   subgroup_flag_min_p: 0.70
   self_selected_flag_min_p: 0.60
+  # Section 7.3: M5 fires when a decisive lead sits under twice the margin.
+  lead_decisive_flag_min_p: 0.70
 
 # Margin coherence rule M4: declared margin below 90% of the theoretical
 # e = z * sqrt(0.25 / n) flags a warning, never an error.
