@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Blocks direct pushes to main and dev from this clone. Bypass with --no-verify is
+# possible locally; GitHub branch protection is the real barrier (section 15.7).
+protected='^refs/heads/(main|dev)$'
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [[ "$remote_ref" =~ $protected ]] && [[ "${ALLOW_PROTECTED_PUSH:-0}" != "1" ]]; then
+    echo "Push directo a ${remote_ref#refs/heads/} bloqueado. Abre un PR." >&2
+    exit 1
+  fi
+done
+exit 0
