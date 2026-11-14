@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { ApiError, analyzeText, getChecklist } from "./api/client";
+import { ApiError, analyzeText, analyzeUrl, getChecklist } from "./api/client";
 import type { Checklist, Report } from "./api/types";
-import { InputScreen } from "./components/InputScreen";
+import { InputScreen, type InputMode } from "./components/InputScreen";
 import { Sheet } from "./components/Sheet";
 import { VedaNotice } from "./components/VedaNotice";
 
 function App() {
+  const [mode, setMode] = useState<InputMode>("text");
   const [pastedText, setPastedText] = useState("");
+  const [url, setUrl] = useState("");
+  const [fromUrl, setFromUrl] = useState(false);
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -29,13 +32,14 @@ function App() {
   }, []);
 
   const analyze = useCallback(
-    async (value: string) => {
+    async (kind: InputMode, value: string) => {
       const trimmed = value.trim();
       if (trimmed.length === 0 || loading) return;
       setLoading(true);
       setErrorMessage(null);
       try {
-        const nextReport = await analyzeText(trimmed);
+        const nextReport = kind === "url" ? await analyzeUrl(trimmed) : await analyzeText(trimmed);
+        setFromUrl(kind === "url");
         setReport(nextReport);
       } catch (error) {
         const message =
@@ -59,9 +63,13 @@ function App() {
   if (report === null) {
     return (
       <InputScreen
+        mode={mode}
+        onModeChange={setMode}
         text={pastedText}
         onTextChange={setPastedText}
-        onSubmit={() => void analyze(pastedText)}
+        url={url}
+        onUrlChange={setUrl}
+        onSubmit={() => void analyze(mode, mode === "text" ? pastedText : url)}
         onLoadExample={loadExample}
         loading={loading}
         errorMessage={errorMessage}
@@ -74,7 +82,13 @@ function App() {
   }
 
   return (
-    <Sheet report={report} pastedText={pastedText} checklist={checklist} onBack={backToInput} />
+    <Sheet
+      report={report}
+      pastedText={pastedText}
+      fromUrl={fromUrl}
+      checklist={checklist}
+      onBack={backToInput}
+    />
   );
 }
 

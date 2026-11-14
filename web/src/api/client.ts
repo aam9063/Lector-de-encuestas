@@ -50,6 +50,15 @@ export function analyzeText(text: string): Promise<Report> {
   });
 }
 
+/** POST /v1/analyses with a link, fetched by the server behind its own guards. */
+export function analyzeUrl(url: string): Promise<Report> {
+  return request<Report>("/analyses", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+}
+
 /** GET /v1/checklist, used for human-readable item names (never hardcoded here). */
 export function getChecklist(): Promise<Checklist> {
   return request<Checklist>("/checklist");
