@@ -27,6 +27,11 @@ _BUDGET_FOCUSED = 600
 _LEDE_TOKEN_BUDGET = 120
 _MAX_FIGURE_SENTENCES = 6
 
+#: A sentence needs at least this many words to serve as the digest headline.
+_HEADLINE_MIN_WORDS = 5
+#: A short opening sentence is merged with the next one only while it stays this short.
+_HEADLINE_MAX_CHARS = 200
+
 _CHARS_PER_TOKEN = 4
 
 #: Digest A keeps sentences carrying a digit or any of these cue stems, matched
@@ -90,12 +95,12 @@ def _digest_with_cues(
     texts = _sentence_texts(text)
     if not texts:
         return _with_meta({"headline": "", "lede": "", list_key: []}, len(text))
-    headline = texts[0]
-    lede, lede_sentences = _lede(texts[1:], _LEDE_TOKEN_BUDGET)
+    headline, rest = _headline(texts)
+    lede, lede_sentences = _lede(rest, _LEDE_TOKEN_BUDGET)
     seen = {headline, *lede_sentences}
     base: dict[str, Any] = {"headline": headline, "lede": lede}
     picked: list[str] = []
-    for sentence in texts[1:]:
+    for sentence in rest:
         if max_items is not None and len(picked) == max_items:
             break
         if sentence in seen or not keeps(sentence):
@@ -115,6 +120,24 @@ def _sentence_texts(text: str) -> list[str]:
 
 def _has_figures(sentence: str) -> bool:
     return any(character.isdigit() for character in sentence)
+
+
+def _headline(texts: list[str]) -> tuple[str, list[str]]:
+    """The headline and the sentences left for the lede.
+
+    A one-word label ("SIMULACIÓN.") or a dateline is not a headline, and using one as the
+    digest headline is not cosmetic: the live model reads "SIMULACIÓN" as "this is not a
+    real survey" and the whole sheet comes back grey, hiding every item. A short opening
+    sentence is therefore merged with the next one, unless that would produce an oversized
+    headline, in which case it is left alone.
+    """
+    first = texts[0]
+    if len(first.split()) >= _HEADLINE_MIN_WORDS or len(texts) < 2:
+        return first, texts[1:]
+    merged = f"{first} {texts[1]}"
+    if len(merged) > _HEADLINE_MAX_CHARS:
+        return first, texts[1:]
+    return merged, texts[2:]
 
 
 def _is_technical(sentence: str) -> bool:
