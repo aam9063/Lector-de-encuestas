@@ -140,3 +140,35 @@ de color, **no es la demo**: es un bug, y conviene saberlo antes de entrar.
 - No se muestra el panel interno de evaluación: no hace falta y no está en la interfaz.
 - No se pega una noticia real que esté dentro de la ventana de veda.
 - No se promete comparación contra jueces LLM: no está medida.
+
+## Preguntas del jurado
+
+**«¿Las fechas de la veda son correctas?»**
+> «Son un supuesto declarado, no una consulta respondida. El plazo de una hackathon no da para
+> una consulta formal a la Junta Electoral Central, así que aplicamos la lectura literal de los
+> cinco días anteriores y lo dejamos conservador. Es un valor de configuración: si la JEC dice
+> otra cosa, se corrige en dos líneas, sin tocar código. Preferimos decirlo a fingir que lo
+> verificamos.»
+
+**«¿Cómo sé que no acusa en falso?»**
+> «Cero por ciento en 165 ítems, medido con el modelo real. La mutación que lo prueba es una
+> paráfrasis que no cambia el contenido: si el sistema acusara ahí, estaría acusando por cómo
+> se escribió, no por lo que se dijo. Además, con evidencia del código un ítem no puede quedar
+> como ausente: hay un test que lo comprueba incluso con probabilidad cero.»
+
+**«¿Por qué no dais una nota de calidad de la encuesta?»**
+> «Porque no podemos sostenerla. Lo que sí podemos sostener es qué información da la noticia, y
+> eso se comprueba ítem por ítem. Una nota única sería un número inventado con apariencia de
+> rigor.»
+
+**«¿Y si la encuesta es un fraude?»**
+> «No es lo que resolvemos, y decirlo forma parte del producto: no verificamos si la encuesta es
+> verdadera. Verificamos si la noticia te da lo necesario para juzgarla.»
+
+**«¿Cuánto tarda y cuánto cuesta?»**
+> «Entre 0,4 y 1,8 segundos por ficha, con dos o tres llamadas al modelo. El semáforo de dos
+> peticiones en vuelo es el límite que impone NaN y está probado con ocho usuarios simultáneos.»
+
+**«¿Qué no habéis podido medir?»**
+> «La comparación con jueces LLM: necesitaríamos acceso a un modelo de chat y no lo tenemos. Lo
+> decimos en la tabla en vez de rellenar el hueco con una cifra inventada.»

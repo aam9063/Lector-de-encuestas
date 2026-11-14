@@ -353,7 +353,10 @@ Límites conocidos:
 - El modo URL depende de que el medio permita la descarga automatizada; muchos la bloquean.
 - La lista de casas encuestadoras es orientativa: una casa ausente sigue siendo reconocida por
   el modelo, con menos evidencia corroborante.
-- La ventana exacta de la veda está pendiente de confirmación con la Junta Electoral Central.
+- La ventana de la veda y la interpretación del artículo 69.1 son **supuestos declarados**, no
+  consultas respondidas por la Junta Electoral Central: el plazo del proyecto no permitía una
+  consulta formal. Están en configuración y el informe detalla el fundamento y el coste de
+  equivocarse en cada uno.
 - El corpus de evaluación es sintético; no incluye noticias reales etiquetadas a mano.
 
 ## Documentación
