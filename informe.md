@@ -7,9 +7,9 @@ justo lo que interesa, que es el razonamiento que falló.
 - Repositorio: `github.com/aam9063/Lector-de-encuestas`
 - Ficha de referencia: [`lector-de-encuestas.md`](./lector-de-encuestas.md)
 - Especificaciones por tarea: [`odd/tasks/`](./odd/tasks)
-- Estado: backend completo (ENC-01 a ENC-12), interfaz (ENC-14/15) y evaluación (ENC-16/17).
-  Faltan ENC-13 (modo URL) y ENC-18/19 (contrato de cola, README y guion).
-- Compuerta actual: **484 tests**, `ruff` y `pyright` en verde, CI en verde sobre `dev`.
+- Estado: backend completo (ENC-01 a ENC-13), interfaz (ENC-14/15) y evaluación (ENC-16/17).
+  Faltan ENC-18/19 (contrato de cola, README y guion).
+- Compuerta actual: **519 tests**, `ruff` y `pyright` en verde, CI en verde sobre `dev`.
 
 ---
 
@@ -74,6 +74,7 @@ config/             checklist, cuestionario, política, veda, listas curadas
 | `policy/calculator.py` | M4 y M5 | Todo en `Decimal`; un redondeo mueve un hallazgo de lado a lado de un umbral |
 | `sanitizer/` | Enmascarado + detector | El detector se construye **distinto** a propósito (ver §7) |
 | `api/store.py` | SQLite sin texto | La promesa se verifica volcando la base, no leyendo el código |
+| `api/fetch.py` | Descarga segura del modo URL | Es el único punto donde la app pide algo que eligió un desconocido: solo http/https, sin credenciales, todas las direcciones del host públicas, redirecciones revalidadas a mano, tope de bytes y de tiempo |
 
 ---
 
@@ -95,7 +96,7 @@ config/             checklist, cuestionario, política, veda, listas curadas
 | ENC-12 | Segunda lectura enfocada | hecho | merge `ad0add4` |
 | ENC-14/15 | Interfaz con ficha y evidencia | hecho | merge `bcaf9cd`, recorrida en navegador |
 | ENC-16/17 | Corpus sintético y harness B0–B4 | hecho, con hallazgo abierto (§8) | rama `feature/enc-16-17-eval` |
-| ENC-13 | Modo URL con fetch seguro (SSRF) | pendiente | — |
+| ENC-13 | Modo URL con fetch seguro (SSRF) | hecho | 32 tests: guardas y contrato del endpoint |
 | ENC-18 | Contrato del cliente real y cola de 2 | parcial: cubierto por ENC-02, falta simulación multiusuario | — |
 | ENC-19 | README, guion y vídeo | pendiente | — |
 
@@ -153,6 +154,7 @@ ese test encontró un agujero real (ver E-05 y E-06).
 | E-01 | …recurrente: volvió a pasar al cerrar E-23 | Rutina de commit | media |
 | E-23 | `refers_external` absorbía todas las ausencias → recall 6,67 % | Medición real | **crítica, resuelta** |
 | E-24 | Una paráfrasis de la tasa de respuesta producía una falsa acusación | Medición real, rastro del caso | alta, resuelta |
+| E-25 | Un patch por índices duplicó las rutas de la API | `ruff` (F811: definición redefinida) | media |
 
 ### 6.2 Fichas
 
@@ -251,6 +253,15 @@ sin distinguir mayúsculas. Con candidato presente, la asimetría prohíbe acusa
 *Resultado:* falsa acusación **0,00 %**. *Prevención:* test de las tres redacciones de una
 tasa de respuesta.
 
+**E-25 · Un patch por índices duplicó las rutas**
+*Síntoma:* `ruff` marcó `F811` tres veces: dos definiciones del mismo endpoint. *Causa:* para
+conectar el modo URL reemplacé un rango del fichero por índices calculados con `str.index`, y
+el segundo índice cayó **antes** del primero; el corte duplicó el bloque en vez de sustituirlo.
+*Arreglo:* restaurar el fichero desde git y rehacerlo con la herramienta de edición, que falla
+si el texto no coincide en vez de cortar a ciegas. *Prevención:* para cambios en ficheros de
+código no uso reemplazos por índice; y si el linter marca una redefinición, se investiga, no se
+silencia.
+
 **E-22 · El corpus no podía disparar el saneador ni M5**
 *Síntoma:* los tests del worker estaban verdes y la métrica "fugas del saneador" daba 0.
 *Diagnóstico:* en vez de leer los tests, conté sobre el corpus: **0 de 280** casos producían
@@ -326,7 +337,7 @@ argumento.
 | Recall de omisiones | Resuelto: 86,67 % (objetivo 85 %) | Medición reproducible con el harness |
 | `config/pollsters.yaml` a medio curar | Abierto | Clef cubre lo que la lista no conoce; evidencia mostrada más pobre |
 | Ventana de veda sin confirmar con la JEC | Abierto (`[VERIFICAR]`) | Diseño conservador y configurable |
-| Modo URL con `fetch` seguro | No implementado | La API responde 501 con un mensaje explícito |
+| Modo URL con `fetch` seguro | Implementado | Guardas SSRF con resolvedor inyectable y 25 tests; pendiente de probar contra un sitio real |
 | Límite por IP y tamaño | Parcial: solo tamaño | Falta ENC-18 |
 | B1/B2 sin medir | Bloqueado por acceso a modelos de chat | Se reporta como no disponible |
 
@@ -350,3 +361,5 @@ argumento.
 | Día 2 | ENC-14/15 interfaz, recorrida en navegador | build + typecheck |
 | Día 2 | Correcciones E-09 a E-14 encontradas al probar en vivo | 440 tests |
 | Día 2 | ENC-16/17 corpus, harness y métricas; E-22 corregido | 484 tests |
+| Día 2 | E-23 y E-24: recall 6,67 % → 86,67 %, falsa acusación 0,00 % | 487 tests |
+| Día 2 | ENC-13: modo URL con guardas SSRF; E-25 corregido | 519 tests |
