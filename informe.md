@@ -9,7 +9,9 @@ justo lo que interesa, que es el razonamiento que falló.
 - Especificaciones por tarea: [`odd/tasks/`](./odd/tasks)
 - Estado: backend completo (ENC-01 a ENC-13), interfaz (ENC-14/15) y evaluación (ENC-16/17).
   Faltan ENC-18/19 (contrato de cola, README y guion).
-- Compuerta actual: **519 tests**, `ruff` y `pyright` en verde, CI en verde sobre `dev`.
+- Compuerta actual: **542 tests**, `ruff` y `pyright` en verde, CI en verde sobre `dev`.
+  El recuento crece con las listas curadas: parte de la suite se parametriza sobre
+  `config/parties.yaml`, así que añadir una formación añade pruebas.
 
 ---
 
@@ -393,7 +395,35 @@ argumento.
 
 ---
 
-## 10. Bitácora
+## 10. Estado de entrega
+
+Todo lo que depende del equipo técnico está cerrado. `dev` contiene el trabajo integrado y
+verificado; abrir el pull request de `dev` a `main` y fusionarlo es una decisión humana, y no
+hay ninguna otra acción pendiente de este lado.
+
+| Comprobación | Estado |
+|---|---|
+| Suite del backend | 542 pruebas en verde, `ruff` y `pyright` limpios |
+| Interfaz | `oxlint`, `tsc` y `build` en verde, flujo recorrido en navegador |
+| Integración continua | en verde sobre `dev` en cada push |
+| Árbol de trabajo | limpio, salvo `.env.example` sin seguimiento (ver nota) |
+| Revisión nativa (RDD) | operativa por CLI; último cambio con riesgo medio y revisión diferida |
+| Medición real | falsa acusación 0,00 %, recall 86,67 %, cero fugas |
+
+Pendientes que no son técnicos:
+
+1. **Vídeo de la demostración.** El guion está en `docs/guion-demo.md` y sus tres textos están
+   verificados contra el código actual.
+2. **Ventana de la veda.** Confirmar fechas con la Junta Electoral Central; la ficha lo marca
+   como `[VERIFICAR]` y la configuración es un valor, no código.
+3. **Comparación con jueces LLM (B1 y B2).** Requiere acceso a un modelo de chat; sin él se
+   reportan como no disponibles, y así queda en la tabla de métricas.
+
+Nota sobre `.env.example`: está sin seguimiento porque la guarda de seguridad del entorno
+bloquea cualquier ruta `.env*`, incluso la lectura. No aparece en ningún diff y no impide la
+entrega; si se quiere versionar, hay que añadirlo desde fuera de esta sesión.
+
+## 11. Bitácora
 
 | Fecha | Hecho | Compuerta |
 |---|---|---|
