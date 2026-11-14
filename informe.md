@@ -150,17 +150,24 @@ ese test encontró un agujero real (ver E-05 y E-06).
 | E-20 | Aviso legal duplicado en la ficha | Navegador real | media |
 | E-21 | CI: `pnpm/action-setup` sin `package_json_file` | CI en rojo | media |
 | E-22 | Corpus de evaluación sin entidades reconocibles → métrica vacua | Verificación propia del corpus | **alta** |
+| E-01 | …recurrente: volvió a pasar al cerrar E-23 | Rutina de commit | media |
 | E-23 | `refers_external` absorbía todas las ausencias → recall 6,67 % | Medición real | **crítica, resuelta** |
 | E-24 | Una paráfrasis de la tasa de respuesta producía una falsa acusación | Medición real, rastro del caso | alta, resuelta |
 
 ### 6.2 Fichas
 
-**E-01 · Commit directo a `dev`**
+**E-01 · Commit directo a `dev`** — *recurrente*
 *Síntoma:* el commit de ENC-03 quedó en `dev` sin rama. *Causa:* no comprobé la rama antes de
 comitear; venía de fusionar y seguí escribiendo. *Arreglo:* `git switch -c feature/...`,
 `git branch -f dev <hash previo>`, merge `--no-ff`. Sin pérdida de trabajo porque el commit
-estaba solo en local. *Prevención:* desde entonces la rama se verifica antes de cada commit;
-el flujo queda escrito en el documento de feature.
+estaba solo en local.
+
+**Volvió a pasar** al cerrar E-23, con el mismo patrón: tras fusionar, seguí trabajando en
+`dev`. La prevención que había escrito —"verificar la rama antes de cada commit"— era
+**de memoria**, y una regla que depende de acordarse no es una prevención. Lo que sirve es
+mecánico: `git branch --show-current` como parte del mismo comando que comitea, de modo que
+el dato aparezca en la salida y una rama equivocada se vea antes de escribir el mensaje.
+Cuando el repo esté protegido con reglas de GitHub, la barrera dejará de depender de mí.
 
 **E-05 · `a_sample_size` no detectaba "1.200 entrevistas"**
 *Síntoma:* ninguno. El worker entregó 64 tests verdes. *Diagnóstico:* escribí un test de
