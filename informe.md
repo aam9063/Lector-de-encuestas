@@ -97,7 +97,7 @@ config/             checklist, cuestionario, política, veda, listas curadas
 | ENC-14/15 | Interfaz con ficha y evidencia | hecho | merge `bcaf9cd`, recorrida en navegador |
 | ENC-16/17 | Corpus sintético y harness B0–B4 | hecho, con hallazgo abierto (§8) | rama `feature/enc-16-17-eval` |
 | ENC-13 | Modo URL con fetch seguro (SSRF) | hecho | 32 tests: guardas y contrato del endpoint |
-| ENC-18 | Contrato del cliente real y cola de 2 | parcial: cubierto por ENC-02, falta simulación multiusuario | — |
+| ENC-18 | Contrato del cliente real y cola de 2 | hecho | fixtures reales por el adaptador y 8 usuarios concurrentes |
 | ENC-19 | README, guion y vídeo | pendiente | — |
 
 ---
@@ -112,6 +112,7 @@ Cada unidad pasa por cuatro capas, y cada una atrapa una clase de error distinta
 | Suite + lint + tipos | Regresiones y contratos | `pyright` obligó a tipar `source`/`severity` como literales en vez de `str` |
 | Prueba en vivo con el modelo real | Que el sistema sea inútil con entradas reales | Tres bugs de §7 que ninguna de las capas anteriores vio |
 | Navegador real | Que la interfaz no renderice | El aviso legal duplicado |
+| Mutación de la protección | Que un test de seguridad o de concurrencia no esté vacío | Quitar el límite de 2 pone el pico en 16 y el test falla |
 
 La lección que costó más: **las tres primeras capas pueden estar verdes y el producto roto**.
 La app usaba el proveedor mock en todas las fichas y los 393 tests no lo detectaban, porque
@@ -363,3 +364,4 @@ argumento.
 | Día 2 | ENC-16/17 corpus, harness y métricas; E-22 corregido | 484 tests |
 | Día 2 | E-23 y E-24: recall 6,67 % → 86,67 %, falsa acusación 0,00 % | 487 tests |
 | Día 2 | ENC-13: modo URL con guardas SSRF; E-25 corregido | 519 tests |
+| Día 2 | ENC-18: contrato con fixtures reales y 8 usuarios sobre la cola de 2 | 530 tests |
