@@ -56,19 +56,21 @@ error posible en esta herramienta.
 ## Evidencia de verificación
 | Tarea | Prueba | Resultado | Commit |
 |---|---|---|---|
-| T1 | `tests/test_extractor_numbers.py` (20 casos) | verdes | ver abajo |
-| T2 | `tests/test_extractor_dates.py` (13 casos) | verdes | ver abajo |
-| T3 | `tests/test_extractor_metrics.py` (25 casos) | verdes | ver abajo |
-| T4 | suite completa `uv run pytest` (92), ruff, pyright | verdes | ver abajo |
+| T1 | `tests/test_extractor_numbers.py` (20 casos) | verdes | d9bc3fe |
+| T2 | `tests/test_extractor_dates.py` (13 casos) | verdes | d9bc3fe |
+| T3 | `tests/test_extractor_metrics.py` (25 casos) | verdes | d9bc3fe |
+| T4 | suite completa `uv run pytest` (92), ruff, pyright | verdes | d9bc3fe |
 | Humo | 3 noticias simuladas: extrae 1200/2,8/95 y 2000/4, y descarta la votación abierta | correcto | ver abajo |
 
 Nota de proceso: este documento se escribió después del código por un descuido de orden
-en el flujo ODD; el contenido y la evidencia son los reales.
+en el flujo ODD, y el commit inicial se hizo sobre `dev` por error; se movió a
+`feature/enc-03-parser-es` y se fusionó con `--no-ff` (7cb8581). El contenido y la
+evidencias son los reales.
 
 ## Revisión nativa (RDD)
 | Tarea | Nivel | Resultado |
 |---|---|---|
-| Slice completo | pendiente de assess | ver PR/CI |
+| Slice completo | assess no disponible en esta máquina (binary missing) | verificación del escritor en verde: 92 tests, ruff, pyright, CI 43581083083 |
 
 ## Progreso
 - T1-T4 completas y verificadas.
