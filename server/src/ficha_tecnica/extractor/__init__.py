@@ -8,6 +8,13 @@ from ficha_tecnica.extractor.candidates import (
     split_sentences,
 )
 from ficha_tecnica.extractor.dates import MONTHS, parse_date, parse_date_range
+from ficha_tecnica.extractor.digest import (
+    build_digest_a,
+    build_digest_b,
+    build_digest_c,
+    build_state,
+    estimate_tokens,
+)
 from ficha_tecnica.extractor.entities import (
     EntityEntry,
     EntitySpan,
@@ -31,8 +38,13 @@ __all__ = [
     "EstimateSpan",
     "SentenceSpan",
     "all_candidates",
+    "build_digest_a",
+    "build_digest_b",
+    "build_digest_c",
+    "build_state",
     "candidates_for",
     "checklist_item_ids",
+    "estimate_tokens",
     "extract_confidence",
     "extract_margin",
     "extract_sample_size",

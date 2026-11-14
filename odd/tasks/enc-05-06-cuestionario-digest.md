@@ -106,16 +106,43 @@ acotado se envía el texto entero y se degrada la latencia y la decisión.
 ## Evidencia de verificación
 | Tarea | Prueba | Resultado | Commit |
 |---|---|---|---|
+| T1 | `tests/test_questionnaire.py` (6): grupos tipados, 15+6+2, tipo desconocido falla | verdes | ver abajo |
+| T2 | 4 snapshots en `tests/fixtures/snapshots/`, revisados a mano contra la tabla 6.2 | aceptados | ver abajo |
+| T3 | `tests/test_extractor_digest.py` (8) + `tests/test_extractor_digest_limits.py` (10) | verdes | ver abajo |
+| T4 | contenido de A/B/C, B sin sanear, preguntas citadas | verdes | ver abajo |
+| Compuerta | `uv run pytest` (188), `ruff check`, `ruff format --check`, `pyright` | verdes | ver abajo |
+
+### Aproximación de tokens (documentada)
+
+`estimate_tokens(text) = ceil(len(text) / 4)`. Un token por cada cuatro caracteres, sin
+tokenizer real: determinista, sin dependencias nuevas y suficiente para acotar el ruido
+que se envía a Clef. El presupuesto se comprueba sobre el **state serializado completo**,
+incluido su propio `meta`, y el conteo se refina hasta que deja de moverse. Si algún día
+hace falta exactitud, se sustituye **solo** esa función: nada más depende de la constante.
+
+### Decisiones de revisión del padre
+
+- Presupuestos como techo duro verificado con un texto de más de 40.000 caracteres: A, B
+y C quedan por debajo de 1.200 / 500 / 400.
+- Verificado que el digest B llega a Clef **sin enmascarar** la cifra de estimación: el
+  saneado es de salida (7.5) y sanear la entrada ocultaría justo el dato que se juzga.
+- `build_digest_c` lee la pregunta de **dentro de las comillas** y no de las frases
+  troceadas: `split_sentences` termina la frase en el `?`, así que una pregunta entre
+  comillas nunca es una frase entera. Decisión aceptada y documentada en el módulo.
+- La frase de arranque cae en `lede`, no en la lista de frases con cifras; el invariante
+  de "sin sanear" se comprueba sobre el digest completo, no sobre un campo concreto.
 
 ## Revisión nativa (RDD)
 | Tarea | Nivel | Resultado |
 |---|---|---|
 
 ## Progreso
-- Delegado al worker.
+- T1-T4 entregadas por el worker, snapshots revisados a mano y verificadas por el padre
+  con 10 tests de límites propios (texto enorme, vacío, sin cifras, pregunta citada,
+  cifra sin enmascarar, JSON compacto).
 
 ## Siguiente paso
-Revisión del padre, commit, merge a `dev`, CI.
+Comitear, fusionar a `dev`, push y CI. Después ENC-07 (política, alto riesgo).
 
 ## Contexto de arranque para el worker
 
