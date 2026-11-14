@@ -18,11 +18,12 @@ import re
 from collections.abc import Callable
 from typing import Any
 
-from ficha_tecnica.extractor.candidates import _fold, split_sentences
+from ficha_tecnica.extractor.candidates import _fold, all_candidates, split_sentences
 
 _BUDGET_A = 1200
 _BUDGET_B = 500
 _BUDGET_C = 400
+_BUDGET_FOCUSED = 600
 _LEDE_TOKEN_BUDGET = 120
 _MAX_FIGURE_SENTENCES = 6
 
@@ -183,3 +184,49 @@ def _with_meta(digest: dict[str, Any], chars: int) -> dict[str, Any]:
         tokens = refined
     result["meta"]["digest_tokens"] = tokens
     return result
+
+
+def build_focused_digest(text: str, item_ids: list[str]) -> dict[str, Any]:
+    """A second-reading state: only the items in doubt, their evidence and its context.
+
+    Less noise for the same question is what turns a 0.45 into a decision. The state keeps
+    the sentences the code already selected plus one neighbour on each side, because the
+    sentence before an item is often the one that says who ran the poll.
+    """
+    sentences = split_sentences(text)
+    candidates = all_candidates(text)
+    entries: list[dict[str, Any]] = []
+
+    for item_id in item_ids:
+        spans = candidates.get(item_id, [])
+        evidence = [text[span.start : span.end] for span in spans]
+        context: list[str] = []
+        if spans:
+            first = next(
+                (index for index, sentence in enumerate(sentences) if sentence == spans[0]), None
+            )
+            if first is not None:
+                if first > 0:
+                    previous = sentences[first - 1]
+                    context.append(text[previous.start : previous.end])
+                following_index = first + len(spans)
+                if following_index < len(sentences):
+                    following = sentences[following_index]
+                    context.append(text[following.start : following.end])
+        entries.append({"id": item_id, "evidence": evidence, "context": context})
+
+    digest: dict[str, Any] = _with_meta({"items": entries}, len(text))
+    # Trim context first (it is only a hint), then evidence from the end, until it fits.
+    while _tokens(digest) > _BUDGET_FOCUSED:
+        with_context = next((entry for entry in digest["items"] if entry["context"]), None)
+        if with_context is not None:
+            with_context["context"] = []
+        elif any(entry["evidence"] for entry in digest["items"]):
+            for entry in reversed(digest["items"]):
+                if entry["evidence"]:
+                    entry["evidence"] = entry["evidence"][:-1]
+                    break
+        else:
+            break
+        digest = _with_meta({"items": digest["items"]}, len(text))
+    return digest
