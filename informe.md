@@ -414,10 +414,27 @@ Pendientes que no son técnicos:
 
 1. **Vídeo de la demostración.** El guion está en `docs/guion-demo.md` y sus tres textos están
    verificados contra el código actual.
-2. **Ventana de la veda.** Confirmar fechas con la Junta Electoral Central; la ficha lo marca
-   como `[VERIFICAR]` y la configuración es un valor, no código.
-3. **Comparación con jueces LLM (B1 y B2).** Requiere acceso a un modelo de chat; sin él se
+2. **Comparación con jueces LLM (B1 y B2).** Requiere acceso a un modelo de chat; sin él se
    reportan como no disponibles, y así queda en la tabla de métricas.
+
+### Supuestos jurídicos declarados
+
+Los cuatro puntos que la ficha marca como `[VERIFICAR]` con la Junta Electoral Central no se
+han podido consultar: el plazo de una hackathon no da para una consulta formal. En lugar de
+dejarlos como tareas abiertas, quedan como **supuestos declarados**, con lo que el sistema
+asume, de dónde sale y qué cuesta equivocarse. Un supuesto explícito es defendible delante de
+un tribunal; un TODO sin resolver parece trabajo a medias.
+
+| Supuesto | Lo que asume el sistema | Fundamento | Coste de equivocarse |
+|---|---|---|---|
+| Ventana de la veda | Del 24 a las 00:00 al 30 a las 00:00 (hora peninsular), semiabierta | Lectura literal de los «cinco días anteriores» del art. 69.7 y del calendario electoral publicado | Se bloquea de más o de menos algún día. Se corrige en dos líneas de `config/policy.yaml`, sin tocar código |
+| Analizar no es difundir | Se bloquea en la ventana aunque la app nunca reproduzca cifras | Diseño conservador: ante la duda, no se analiza | Se pierde utilidad esos días, nunca se incumple |
+| Preguntas y no respuesta en el 69.1 | Se tratan como especificación formal, con gravedad media y baja | Doctrina de la JEC citada en la ficha, sin confirmar la letra exacta | Si son obligatorias, `a_nonresponse` debería subir de gravedad y colorear el semáforo. Es un valor de `config/checklist.v1.yaml` |
+| Remisión a ficha externa | Una ausencia clara se marca como ausente aunque el texto enlace la ficha | El semáforo describe lo que da la noticia, no lo que enlaza | Si el enlace bastara, habría que invertir la prioridad en `policy/states.py` |
+
+Lo que **sí** está verificado y no depende de la JEC: el texto del aviso legal, la regla de no
+reproducir cifras, el artículo del que sale cada ítem del bloque formal y el calendario
+electoral publicado.
 
 Nota sobre `.env.example`: está sin seguimiento porque la guarda de seguridad del entorno
 bloquea cualquier ruta `.env*`, incluso la lectura. No aparece en ningún diff y no impide la
