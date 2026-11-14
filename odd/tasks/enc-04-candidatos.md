@@ -85,16 +85,45 @@ interfaz (ENC-15) ni saneador posible (ENC-09).
 ## Evidencia de verificación
 | Tarea | Prueba | Resultado | Commit |
 |---|---|---|---|
+| T1 | `tests/test_extractor_entities.py` (36) | verdes | ver abajo |
+| T2 | `tests/test_extractor_entities.py` (spans de estimación) | verdes | ver abajo |
+| T3 | `tests/test_extractor_candidates.py` (28) | verdes | ver abajo |
+| T4 | `tests/test_extractor_candidates.py` (pistas por ítem) | verdes | ver abajo |
+| Aceptación (padre) | `tests/test_extractor_news.py` (7): noticia realista completa, spans recortables, P0 encuentran su frase, estimaciones 32 %/28 % y no el 95 % de confianza | verdes | ver abajo |
+| Compuerta | `uv run pytest` (164), `ruff check`, `ruff format --check`, `pyright` | verdes | ver abajo |
+
+### Correcciones del padre sobre la entrega del worker
+
+El test de aceptación encontró dos agujeros reales que los tests unitarios del worker no
+cubrían:
+
+1. `a_sample_size` no detectaba **"1.200 entrevistas"**, el patrón canónico de la propia
+   ficha: la tabla de pistas tenía `entrevistad[ao]s` pero no `entrevistas`. Corregido.
+2. Las pistas se escribían con tilde (`según`, `población`), así que un texto sin tildes —
+   el estilo "hilo de red social" es uno de los cuatro del dataset (ENC-16) — no
+   encontraba ninguna evidencia. Corregido con *folding* 1:1: las pistas se escriben sin
+   tilde y se buscan sobre una copia plegada del mismo largo, de modo que las posiciones
+   siguen siendo válidas sobre el texto original. Verificado: el mismo texto con y sin
+   tildes devuelve la misma evidencia.
+
+Además, `all_candidates` usaba `_CUES[item_id]` y habría lanzado `KeyError` en cuanto la
+checklist creciera a una v2 con un ítem nuevo; ahora usa `.get(item_id, ())`.
+
+Nota de contrato: `EntitySpan.name` es el nombre **canónico** de la lista curada, no la
+variante encontrada ("Partido Popular" informa `PP`); la variante está en
+`EntitySpan.variant` y `text[start:end] == variant` está cubierto por test.
 
 ## Revisión nativa (RDD)
 | Tarea | Nivel | Resultado |
 |---|---|---|
 
 ## Progreso
-- Delegado al worker con este documento como especificación.
+- T1-T4 entregadas por el worker y verificadas por el padre con un test de aceptación
+  propio; dos agujeros corregidos (pista "entrevistas" y tolerancia a tildes).
 
 ## Siguiente paso
-Verificar la entrega del worker, comitear, fusionar a `dev` y comprobar CI.
+Comitear, fusionar a `dev` con `--no-ff`, push y CI en verde. Después ENC-05 (digest) y
+ENC-06 (cuestionario v1 con snapshot).
 
 ## Contexto de arranque para el worker
 
