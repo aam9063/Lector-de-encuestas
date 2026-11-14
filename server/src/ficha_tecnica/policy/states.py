@@ -52,15 +52,15 @@ def decide_item(
     policy: PolicyConfig,
     external_sheet_probability: float | None = None,
 ) -> ItemState:
-    """Assign the state of one item from the code candidate and Clef's probability."""
-    if (
-        external_sheet_probability is not None
-        and item_id != EXTERNAL_SHEET_ITEM
-        and external_sheet_probability >= EXTERNAL_SHEET_MIN
-        and probability < EXTERNAL_SHEET_MAX_ITEM_P
-    ):
-        return "refers_external"
+    """Assign the state of one item from the code candidate and Clef's probability.
 
+    Order matters. A confident absence is decided before the external-sheet escape hatch:
+    the evaluation showed that every news story linking the technical sheet turned all 28
+    items with a missing datum into ``refers_external``, which made the state that says
+    "this is missing" unreachable and drove recall of omissions to 6.67 %. The story did
+    omit the datum; linking a sheet does not put it back. The reference only softens a
+    doubt, where we genuinely cannot tell.
+    """
     if has_candidate:
         if probability >= policy.thresholds.present_with_candidate:
             return "present"
@@ -71,6 +71,14 @@ def decide_item(
         return "present"
     if probability <= policy.thresholds.absent_max:
         return "absent"
+
+    if (
+        external_sheet_probability is not None
+        and item_id != EXTERNAL_SHEET_ITEM
+        and external_sheet_probability >= EXTERNAL_SHEET_MIN
+    ):
+        return "refers_external"
+
     return _doubt(layer, policy)
 
 

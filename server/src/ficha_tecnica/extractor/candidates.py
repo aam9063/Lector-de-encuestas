@@ -116,10 +116,26 @@ _CUES: dict[str, tuple[re.Pattern[str], ...]] = {
     ),
     "a_question_text": (re.compile(r"\b(?:pregunta|cuestionario)\b"),),
     "a_nonresponse": (
-        re.compile(r"\b(?:no\s+(?:respond|contest)|tasa\s+de\s+respuesta|no\s+respuesta)\b"),
+        # A response rate states nonresponse (100 - rate) even when the story never writes
+        # "no contestó". Found by the evaluation: a paraphrase of "la tasa de respuesta fue
+        # del 97 %" as "respondieron 97 de cada 100" made the app accuse the story of
+        # omitting the datum. With a candidate present the asymmetry forbids accusing.
+        re.compile(
+            r"\b(?:no\s+(?:respond|contest)|tasa\s+de\s+respuesta|porcentaje\s+de\s+respuesta|"
+            r"indice\s+de\s+respuesta|respondieron|no\s+respuesta)\b"
+        ),
     ),
     "a_weighting": (re.compile(r"\bponderad[ao]s?\b|\bponderacion\b|\bpondera\b"),),
     "a_external_sheet": (re.compile(r"\b(?:ficha|hoja)\s+tecnica\b"),),
+}
+
+
+# Cues are matched case-insensitively. A cue word can open a sentence -- "Respondieron 97
+# de cada 100 contactados" -- and a case-sensitive table missed those silently, which showed
+# up as a false accusation in the evaluation.
+_CUES = {
+    item_id: tuple(re.compile(pattern.pattern, re.IGNORECASE) for pattern in patterns)
+    for item_id, patterns in _CUES.items()
 }
 
 
