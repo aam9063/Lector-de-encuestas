@@ -52,13 +52,30 @@ El repo existe sin commits. Sin estructura ni CI no se puede empezar el núcleo 
 ## Evidencia de verificación
 | Tarea | Prueba | Resultado | Commit |
 |---|---|---|---|
+| T1 | push de `main` y `dev` | OK (a105915) | a105915 |
+| T2 | `uv run pytest` (4), `ruff check`, `pyright` | verdes | bf54a18 |
+| T3 | `pnpm lint` + `typecheck` + `build` | verdes | 2253ad5 |
+| T4 | `uv run pytest` (8, incluye config YAMLs) | verde | 3ec050e |
+| T5 | hook activo (`core.hooksPath=.githooks`), workflow conforme a 15.9 | OK | 7050a86 |
+| T6 | merge `--no-ff` a `dev` + push de ramas | OK | ver `dev` |
+| Extra | llamada real a Clef: contrato confirmado (noul/choice/score) | 200 OK, fixtures capturadas | 38581db |
+
+Nota: `.env.example` fue bloqueado por la guarda de seguridad de Gentle AI (patrón
+`.env*`), también en `git add`. Queda sin trackear en local; el `.gitignore` ya lo
+negocia (`!.env.example`) por si se sube a mano. El `.env` real está ignorado.
+
+Hallazgo: el `.env` exporta `NAN_API_KEY`, no `NAN_KEY`. `Settings` acepta ambos
+(`AliasChoices`), cubierto por `tests/test_settings.py`.
 
 ## Revisión nativa (RDD)
 | Tarea | Nivel | Resultado |
 |---|---|---|
+| Slice completo | medium (`nativeRisk: unassessable`: binary missing) | diferido al cierre del slice; verificación del escritor en verde (pytest, ruff, pyright, build) |
 
 ## Progreso
-- T1 en curso.
+- T1-T6 completas. Contrato de Clef confirmado contra la API real (verificación
+  pendiente nº1 de la ficha, resuelta).
 
 ## Siguiente paso
-Crear commit inicial y rama `dev`.
+ENC-02: `DecisionProvider` con adaptadores `nan` (semáforo de 2, reintento en 429) y
+`mock`, con el parser escrito contra las fixtures capturadas.
