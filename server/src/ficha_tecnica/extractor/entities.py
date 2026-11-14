@@ -82,25 +82,33 @@ def _variant_pattern(variant: str) -> re.Pattern[str]:
     return re.compile(rf"(?<!\w){body}(?!\w)", re.IGNORECASE)
 
 
-def _load_entries(filename: str, key: str) -> tuple[EntityEntry, ...]:
+def _load_entries(filename: str, *keys: str) -> tuple[EntityEntry, ...]:
+    """Read the curated lists plus the simulation ones used by the evaluation corpus.
+
+    The synthetic entities are loaded through the same path on purpose: if the evaluation
+    corpus used names this module never sees, vote-estimate spans, rule M5 and the output
+    sanitizer would all stay silent during evaluation and the "zero leaks" metric would be
+    vacuously true.
+    """
     with (_CONFIG_DIR / filename).open(encoding="utf-8") as stream:
         data: dict[str, list[dict[str, object]]] = yaml.safe_load(stream)
     return tuple(
         EntityEntry(name=item["name"], variants=tuple(item["variants"]))  # type: ignore[arg-type]
-        for item in data[key]
+        for key in keys
+        for item in data.get(key, [])
     )
 
 
 @lru_cache(maxsize=1)
 def load_pollsters() -> tuple[EntityEntry, ...]:
     """Curated pollster list, canonical name first, variants as written in YAML."""
-    return _load_entries("pollsters.yaml", "pollsters")
+    return _load_entries("pollsters.yaml", "pollsters", "simulation_pollsters")
 
 
 @lru_cache(maxsize=1)
 def load_parties() -> tuple[EntityEntry, ...]:
     """Complete national party list; identical treatment for every formation."""
-    return _load_entries("parties.yaml", "parties")
+    return _load_entries("parties.yaml", "parties", "simulation_parties")
 
 
 @lru_cache(maxsize=1)

@@ -10,6 +10,11 @@ Order of work, and why:
    confident it does.
 4. Item states come from the policy table, the semaphore from 7.4 plus the arithmetic.
 
+The focused second reading (item 3 of section 6.4) is optional for the evaluation
+harness: baseline B3 measures the single-reading system, so ``second_reading=False``
+leaves every doubt as ``review`` without the extra call. The default behaviour of the
+complete system (B4) is unchanged.
+
 Item states that ask for a second reading are shown as ``review`` for now: ENC-12 adds the
 focused second call. Showing "we are not sure" is the honest interim behaviour, and it is
 the direction the design asks for anyway.
@@ -121,6 +126,7 @@ async def analyze(
     now: datetime | None = None,
     provider_name: str = "mock",
     calls: list[dict[str, object]] | None = None,
+    second_reading: bool = True,
 ) -> Report:
     """Run one analysis and return the sheet. Never stores or returns the input text."""
     started = time.perf_counter()
@@ -185,7 +191,7 @@ async def analyze(
     doubts = [
         item_id for item_id, (_, _, state) in states.items() if state == "needs_second_reading"
     ]
-    if doubts:
+    if doubts and second_reading:
         states.update(
             await _second_reading(text, doubts, states, provider, questionnaire, policy, calls)
         )

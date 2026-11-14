@@ -35,3 +35,9 @@ pollsters:
     variants: ["MyWordMontero", "My Word Montero"]
   - name: "Encuesta Justa"
     variants: ["Encuesta Justa"]
+
+# Fictitious pollsters used by the synthetic evaluation corpus (ENC-16), listed for the
+# same reason as the simulation parties.
+simulation_pollsters:
+  - name: "Demoscopia Ficticia S.L."
+    variants: ["Demoscopia Ficticia", "Encuestas Noveladas"]
