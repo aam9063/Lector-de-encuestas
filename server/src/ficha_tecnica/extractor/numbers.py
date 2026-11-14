@@ -25,7 +25,10 @@ _PLUS_MINUS = re.compile(rf"(?:±|\+/-|\+-)\s*({FIGURE_PATTERN})")
 _PERCENTAGE = re.compile(rf"({FIGURE_PATTERN})\s*%")
 _POINTS = re.compile(rf"({FIGURE_PATTERN})\s*(?:puntos|punto)\b")
 _MARGIN_FIGURE = re.compile(
-    rf"(?:±|\+/-|\+-)\s*({FIGURE_PATTERN})|({FIGURE_PATTERN})\s*(?:%|puntos?)\b"
+    # The boundary belongs to "puntos", not to the whole group: after a "%" followed by a
+    # space there is no word boundary, so `(?:%|puntos?)\b` made every margin written as a
+    # plain percentage invisible. Found on a real article: "margen de error del 0,5%".
+    rf"(?:±|\+/-|\+-)\s*({FIGURE_PATTERN})|({FIGURE_PATTERN})\s*(?:%|puntos?\b)"
 )
 
 
