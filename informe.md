@@ -122,6 +122,40 @@ Entregas delegadas: se reproduce la compuerta del worker y **además** se escrib
 aceptación propio, sobre comportamiento y no sobre implementación. En dos de tres entregas
 ese test encontró un agujero real (ver E-05 y E-06).
 
+### El gate de revisión nativa (RDD)
+
+Durante casi todo el proyecto el facade de Pi respondió `package-local-binary-missing`, y
+cada documento de tarea registró "assess nativo no disponible en esta máquina". Eso era una
+**conclusión mía sin verificar**. Al diagnosticarlo:
+
+| Comprobación | Resultado |
+|---|---|
+| El binario del paquete existe en `.gentle-ai/v4.5.0/gentle-ai.exe` | sí |
+| `INSTALLER_VERSION` del paquete | 4.5.0, coincide con el directorio |
+| Hash registrado en `integrity.json` vs. `sha256` real del ejecutable | **idénticos** |
+| `gentle-ai review status --contract … --agent pi` ejecutado a mano | exit 0, JSON válido |
+| `gentle-ai review assess --committed-only` ejecutado a mano | funciona |
+
+Conclusiones:
+
+1. **El gate nativo funciona.** Lo que falla es la resolución del facade de Pi, no el
+   binario. Queda como defecto de herramienta, con esta evidencia, para reportar aguas
+   arriba.
+2. **El bloqueo real y accionable era otro**: había un fichero sin trackear (`.env.example`,
+   que la guarda de seguridad no deja tocar) y el assess exige declararlo de forma explícita.
+   La CLI sí lo permite:
+
+```bash
+gentle-ai review assess --cwd . --base-ref HEAD~1 --committed-only   --untracked-scope=exclude   --expected-untracked-inventory=sha256:<el que devuelve review status>
+```
+
+Con eso, la revisión nativa corre y da su veredicto: el último cambio (curación de la lista
+de casas) es **riesgo medio** con `review_due: false`, es decir, diferido al cierre del
+slice, que es exactamente lo que manda la sección 15.4 para riesgo medio.
+
+La lección: "no disponible en esta máquina" era una excusa cómoda. Un gate que se declara
+roto sin diagnosticarlo se convierte en una exención permanente.
+
 ---
 
 ## 6. Registro de errores
@@ -351,7 +385,7 @@ argumento.
 | Riesgo | Estado | Mitigación actual |
 |---|---|---|
 | Recall de omisiones | Resuelto: 86,67 % (objetivo 85 %) | Medición reproducible con el harness |
-| `config/pollsters.yaml` a medio curar | Abierto | Clef cubre lo que la lista no conoce; evidencia mostrada más pobre |
+| `config/pollsters.yaml` | Curado: 27 casas reales + la simulada | Clef cubre igual lo que la lista no conozca |
 | Ventana de veda sin confirmar con la JEC | Abierto (`[VERIFICAR]`) | Diseño conservador y configurable |
 | Modo URL con `fetch` seguro | Implementado | Guardas SSRF con resolvedor inyectable y 25 tests; pendiente de probar contra un sitio real |
 | Límite por IP y tamaño | Parcial: solo tamaño | Falta ENC-18 |
@@ -381,3 +415,4 @@ argumento.
 | Día 2 | ENC-13: modo URL con guardas SSRF; E-25 corregido | 519 tests |
 | Día 2 | ENC-18: contrato con fixtures reales y 8 usuarios sobre la cola de 2 | 530 tests |
 | Día 2 | ENC-19: README y guion de demo; E-26 corregido al verificar los textos | 531 tests |
+| Día 2 | `pollsters.yaml` curado (27 casas) y gate nativo de RDD diagnosticado y operativo | 531 tests |
