@@ -98,7 +98,7 @@ config/             checklist, cuestionario, política, veda, listas curadas
 | ENC-16/17 | Corpus sintético y harness B0–B4 | hecho, con hallazgo abierto (§8) | rama `feature/enc-16-17-eval` |
 | ENC-13 | Modo URL con fetch seguro (SSRF) | hecho | 32 tests: guardas y contrato del endpoint |
 | ENC-18 | Contrato del cliente real y cola de 2 | hecho | fixtures reales por el adaptador y 8 usuarios concurrentes |
-| ENC-19 | README, guion y vídeo | pendiente | — |
+| ENC-19 | README, guion y vídeo | hecho (falta el vídeo) | README con 3 comandos y `docs/guion-demo.md` verificado |
 
 ---
 
@@ -156,6 +156,7 @@ ese test encontró un agujero real (ver E-05 y E-06).
 | E-23 | `refers_external` absorbía todas las ausencias → recall 6,67 % | Medición real | **crítica, resuelta** |
 | E-24 | Una paráfrasis de la tasa de respuesta producía una falsa acusación | Medición real, rastro del caso | alta, resuelta |
 | E-25 | Un patch por índices duplicó las rutas de la API | `ruff` (F811: definición redefinida) | media |
+| E-26 | El texto de la demo daba ámbar por una pista demasiado estrecha | Verificar el guion contra el código actual | alta, resuelta |
 
 ### 6.2 Fichas
 
@@ -253,6 +254,20 @@ de no respuesta cubre también las tasas de respuesta, y todas las pistas se com
 sin distinguir mayúsculas. Con candidato presente, la asimetría prohíbe acusar.
 *Resultado:* falsa acusación **0,00 %**. *Prevención:* test de las tres redacciones de una
 tasa de respuesta.
+
+**E-26 · El texto de la demo daba ámbar**
+*Síntoma:* al verificar los tres textos del guion contra el código de `dev`, el tercero —la
+paráfrasis que debe salir verde— salió ámbar. *Diagnóstico:* comparé los estados de los dos
+textos y aislé un único ítem, `a_universe`: en el original "residentes en la comunidad"
+coincidía con la pista del código y salía presente; en la paráfrasis "personas con derecho a
+voto de la comunidad" no coincidía, y el modelo le daba 0,005. *Causa raíz:* la pista del
+universo era demasiado estrecha: solo conocía la forma explícita. La paráfrasis conserva el
+significado, así que la acusación era falsa — justo lo que la mutación M14 existe para
+detectar, ahora en el texto que se iba a mostrar en vivo. *Arreglo:* la pista cubre también
+"derecho a voto", "electores", "electorado", "censo" y "comunidad autonoma". *Resultado:* el
+texto C vuelve a verde y las métricas del corpus no se mueven (0,00 % falsa acusación,
+86,67 % recall, 0 fugas). *Prevención:* test con las cuatro formas, y una regla de método: el
+guion de demo se verifica contra el código actual antes de ensayarlo, no después.
 
 **E-25 · Un patch por índices duplicó las rutas**
 *Síntoma:* `ruff` marcó `F811` tres veces: dos definiciones del mismo endpoint. *Causa:* para
@@ -365,3 +380,4 @@ argumento.
 | Día 2 | E-23 y E-24: recall 6,67 % → 86,67 %, falsa acusación 0,00 % | 487 tests |
 | Día 2 | ENC-13: modo URL con guardas SSRF; E-25 corregido | 519 tests |
 | Día 2 | ENC-18: contrato con fixtures reales y 8 usuarios sobre la cola de 2 | 530 tests |
+| Día 2 | ENC-19: README y guion de demo; E-26 corregido al verificar los textos | 531 tests |

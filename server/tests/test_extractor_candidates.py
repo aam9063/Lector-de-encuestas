@@ -120,3 +120,15 @@ def test_a_response_rate_counts_as_a_nonresponse_statement() -> None:
         "El porcentaje de respuesta fue del 97 %.",
     ):
         assert candidates_for(texto, "a_nonresponse"), texto
+
+
+def test_the_universe_is_found_in_a_paraphrase_too() -> None:
+    """ "Personas con derecho a voto de la comunidad" states the same universe as the
+    explicit form. Missing this cue produced a false accusation on the demo's own text."""
+    for texto in (
+        "personas con derecho a voto residentes en la comunidad",
+        "personas con derecho a voto de la comunidad",
+        "el electorado de la comunidad autonoma",
+        "el censo de la provincia",
+    ):
+        assert candidates_for(texto, "a_universe"), texto

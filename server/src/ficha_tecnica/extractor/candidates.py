@@ -98,7 +98,13 @@ _CUES: dict[str, tuple[re.Pattern[str], ...]] = {
         re.compile(r"\b(?:nivel\s+de\s+confianza|confianza\s+del?|con\s+una\s+confianza)\b"),
     ),
     "a_universe": (
-        re.compile(r"\b(?:universo|poblacion|mayores\s+de|residentes\s+en|\d+\s+anos)\b"),
+        # The universe is stated in many ways: "residentes en la comunidad" is the explicit
+        # form, but "personas con derecho a voto de la comunidad" says the same thing. The
+        # paraphrase that dropped this cue produced a false accusation in the benchmark.
+        re.compile(
+            r"\b(?:universo|poblacion|mayores\s+de|residentes\s+en|\d+\s+anos|"
+            r"derecho\s+a\s+voto|electores|electorado|censo|comunidad\s+autonoma)\b"
+        ),
     ),
     "a_sampling_system": (
         re.compile(r"\b(?:muestreo|estratificad[ao]s?|afijacion|cuotas?|aleatori[ao]s?|panel)\b"),
