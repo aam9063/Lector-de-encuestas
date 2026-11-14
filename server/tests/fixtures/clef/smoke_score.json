@@ -1,0 +1,38 @@
+{
+  "id": "decision-8fb2affa3b376987",
+  "object": "structured_decision",
+  "created": 1794648142,
+  "model": "clef",
+  "answers": {
+    "b_headline_overreach": {
+      "type": "score",
+      "score": 1.6227991878986359,
+      "legend": {
+        "0": "Nada",
+        "1": "Poco",
+        "2": "Algo",
+        "3": "Bastante",
+        "4": "Mucho"
+      },
+      "probabilities": {
+        "0": 0.26204007863998413,
+        "1": 0.25200146436691284,
+        "2": 0.18800455331802368,
+        "3": 0.1970270872116089,
+        "4": 0.10092683881521225
+      },
+      "confidence": 0.26204007863998413
+    }
+  },
+  "usage": {
+    "input_tokens": 214,
+    "output_tokens": 0
+  },
+  "diagnostics": {
+    "b_headline_overreach": {
+      "label_mass": 1.0,
+      "argmax_is_label": true
+    }
+  },
+  "joint": null
+}

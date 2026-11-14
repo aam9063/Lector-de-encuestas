@@ -35,6 +35,31 @@ def test_questionnaire_v1_groups() -> None:
     assert {"b_poll_type", "b_is_electoral", "b_headline_overreach"} <= group_b
 
 
+def test_questionnaire_uses_the_live_clef_contract() -> None:
+    """Field names verified against the real API: see docs/clef-contract.md."""
+    questionnaire = _load("questionnaire.v1.yaml")
+    questions = {
+        question["id"]: question for group in questionnaire["groups"].values() for question in group
+    }
+
+    # choice: criteria is an object (label -> description); never an options list.
+    poll_type = questions["b_poll_type"]
+    assert isinstance(poll_type["criteria"], dict)
+    assert "options" not in poll_type
+    assert "voting_intention_estimate" in poll_type["criteria"]
+
+    # score: criteria is an ordered list of levels; never a levels key.
+    overreach = questions["b_headline_overreach"]
+    assert isinstance(overreach["criteria"], list)
+    assert overreach["criteria"][0] == "Nada"
+    assert "levels" not in overreach
+
+    # noul: no criteria at all.
+    for question in questions.values():
+        if question["type"] == "noul":
+            assert "criteria" not in question, question["id"]
+
+
 def test_policy_v1_and_veda() -> None:
     policy = _load("policy.yaml")
     thresholds = policy["policy"]["thresholds"]

@@ -1,0 +1,41 @@
+{
+  "id": "decision-9086c6bd9ccc8be4",
+  "object": "structured_decision",
+  "created": 1794648116,
+  "model": "clef",
+  "answers": {
+    "a_sample_size": {
+      "type": "noul",
+      "noul": 0.9867772459983826,
+      "probabilities": {
+        "yes": 0.9867772459983826,
+        "no": 0.013222822919487953
+      },
+      "confidence": 0.9867772459983826
+    },
+    "b_is_electoral": {
+      "type": "noul",
+      "noul": 0.9843363761901855,
+      "probabilities": {
+        "yes": 0.9843363761901855,
+        "no": 0.015663649886846542
+      },
+      "confidence": 0.9843363761901855
+    }
+  },
+  "usage": {
+    "input_tokens": 286,
+    "output_tokens": 0
+  },
+  "diagnostics": {
+    "a_sample_size": {
+      "label_mass": 1.0,
+      "argmax_is_label": true
+    },
+    "b_is_electoral": {
+      "label_mass": 1.0,
+      "argmax_is_label": true
+    }
+  },
+  "joint": null
+}

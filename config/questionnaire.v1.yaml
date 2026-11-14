@@ -1,6 +1,8 @@
 # Clef questionnaire v1 (section 6.3). Snapshot-tested by ENC-06.
-# noul -> probability of "yes"; choice -> probability per option;
-# score -> distribution over levels. Field names confirmed against real fixtures.
+# Contract confirmed against the live API (docs/clef-contract.md):
+#   noul  -> probability of "yes"; fields: instructions
+#   choice-> criteria is an OBJECT (label -> short description)
+#   score -> criteria is an ORDERED LIST of levels, low to high
 version: 1
 
 groups:
@@ -55,14 +57,14 @@ groups:
     - id: b_poll_type
       type: choice
       instructions: "What kind of survey does the text describe?"
-      options:
-        - voting_intention_estimate
-        - direct_voting_intention
-        - leader_ratings
-        - issue_opinion
-        - self_selected_online_poll
-        - poll_of_polls_or_model
-        - not_a_poll
+      criteria:
+        voting_intention_estimate: "a model or seat estimate derived from polls"
+        direct_voting_intention: "respondents stated which party they would vote for"
+        leader_ratings: "ratings of party leaders"
+        issue_opinion: "opinion on issues, not voting intention"
+        self_selected_online_poll: "open online vote by readers, self-selected"
+        poll_of_polls_or_model: "aggregate of several polls"
+        not_a_poll: "not a survey"
     - id: b_is_electoral
       type: noul
       instructions: "Is the text about voting intention or election results?"
@@ -75,7 +77,7 @@ groups:
     - id: b_headline_overreach
       type: score
       instructions: "How much does the headline claim beyond what the data in the text support?"
-      levels: ["Nada", "Poco", "Algo", "Bastante", "Mucho"]
+      criteria: ["Nada", "Poco", "Algo", "Bastante", "Mucho"]
     - id: b_subgroup
       type: noul
       instructions: "Does the text present small-subgroup results as if they held for the whole population?"
