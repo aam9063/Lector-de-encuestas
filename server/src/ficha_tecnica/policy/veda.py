@@ -65,13 +65,16 @@ def should_block(
 
 
 def veda_notice(veda: VedaConfig) -> str:
-    """The notice shown instead of findings. It carries no figures and no party names."""
+    """The notice shown instead of findings. It carries no figures and no party names.
+
+    It does not repeat the legal disclaimer: the pipeline appends that separately, and the
+    first version said the same thing twice, which reads as a template that nobody checked.
+    """
     voting_day = (veda.end - timedelta(days=1)).date()
     return (
-        f"{VEDA_NOTICE} La ley prohibe publicar sondeos electorales en los cinco dias "
-        f"previos a la votacion, del {veda.start:%d/%m/%Y} al {voting_day:%d/%m/%Y} "
-        f"(votacion el {voting_day:%d/%m/%Y}). No se emiten hallazgos: la valoracion "
-        f"juridica corresponde a la Junta Electoral Central."
+        f"{VEDA_NOTICE} La ley prohíbe publicar sondeos electorales en los cinco días "
+        f"previos a la votación, del {veda.start:%d/%m/%Y} al {voting_day:%d/%m/%Y} "
+        f"(votación el {voting_day:%d/%m/%Y}). No se emiten hallazgos."
     )
 
 
