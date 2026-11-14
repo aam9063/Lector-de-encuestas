@@ -52,3 +52,14 @@ def test_indented_fences_are_cleaned_too() -> None:
     cleaned = strip_paste_artifacts(f"  ```\n{STORY}")
 
     assert "```" not in cleaned
+
+
+def test_a_fence_glued_to_the_text_does_not_erase_the_text() -> None:
+    """Regression: matching the whole line blanked the entire story."""
+    glued = f"```{STORY}```"
+
+    cleaned = strip_paste_artifacts(glued)
+
+    assert cleaned.count("```") == 0
+    assert STORY in cleaned
+    assert len(cleaned) == len(glued)

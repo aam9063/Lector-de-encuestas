@@ -29,7 +29,7 @@ _MAX_FIGURE_SENTENCES = 6
 
 #: A sentence needs at least this many words to serve as the digest headline.
 _HEADLINE_MIN_WORDS = 5
-#: A short opening sentence is merged with the next one only while it stays this short.
+#: A headline longer than this is trimmed at a word boundary before it reaches the model.
 _HEADLINE_MAX_CHARS = 200
 
 _CHARS_PER_TOKEN = 4
@@ -125,19 +125,19 @@ def _has_figures(sentence: str) -> bool:
 def _headline(texts: list[str]) -> tuple[str, list[str]]:
     """The headline and the sentences left for the lede.
 
-    A one-word label ("SIMULACIÓN.") or a dateline is not a headline, and using one as the
-    digest headline is not cosmetic: the live model reads "SIMULACIÓN" as "this is not a
-    real survey" and the whole sheet comes back grey, hiding every item. A short opening
-    sentence is therefore merged with the next one, unless that would produce an oversized
-    headline, in which case it is left alone.
+    A one-word label ("SIMULACIÓN.") or a dateline is not part of the story: it is a marker
+    we add. Feeding it to the model as the headline is not cosmetic -- "SIMULACIÓN" alone
+    reads as "this is not a real survey" and the sheet comes back grey with every item
+    hidden, which is exactly what happened against the live model. Such a marker is skipped,
+    and a headline longer than the cap is trimmed at a word boundary.
     """
-    first = texts[0]
-    if len(first.split()) >= _HEADLINE_MIN_WORDS or len(texts) < 2:
-        return first, texts[1:]
-    merged = f"{first} {texts[1]}"
-    if len(merged) > _HEADLINE_MAX_CHARS:
-        return first, texts[1:]
-    return merged, texts[2:]
+    index = 0
+    while index < len(texts) - 1 and len(texts[index].split()) < _HEADLINE_MIN_WORDS:
+        index += 1
+    headline = texts[index]
+    if len(headline) > _HEADLINE_MAX_CHARS:
+        headline = headline[:_HEADLINE_MAX_CHARS].rsplit(" ", 1)[0]
+    return headline, texts[index + 1 :]
 
 
 def _is_technical(sentence: str) -> bool:

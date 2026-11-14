@@ -59,7 +59,8 @@ def test_huge_text_stays_under_every_budget() -> None:
 
 def test_lede_is_cut_at_a_word_boundary() -> None:
     body = "palabras " * 200  # ~1799 chars: far beyond the lede budget, cuts mid-word
-    text = f"Titular corto.\n{body}fin.\nTercera frase con un 34,2 %."
+    # The first line must qualify as a headline: a shorter marker is skipped as metadata.
+    text = f"Un titular normal con mas de cinco palabras.\n{body}fin.\nTercera frase."
     digest = build_digest_a(text)
     lede = digest["lede"]
     giant = text.split("\n")[1]

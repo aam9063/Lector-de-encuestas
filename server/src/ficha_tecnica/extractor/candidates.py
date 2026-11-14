@@ -29,6 +29,26 @@ class SentenceSpan:
 # grouping ("1.200") or a decimal, never a sentence end.
 _SENTENCE = re.compile(r"(?:[^.!?…\n]|\.(?=\d))+[.!?…]*")
 
+# Spanish press copy is full of abbreviations, and every one of them carries a dot that is
+# not a terminator: "Demoscopia Ficticia S.L., cuya sede..." must stay one sentence, not
+# "…Ficticia S." plus "L. , cuya sede…". That corrupted state is what made the live model
+# classify an obvious poll as not_a_poll and grey out the whole sheet.
+_ABBREVIATIONS = re.compile(
+    r"(?<!\w)(?:S\.L\.U|S\.L|S\.A\.U|S\.A|EE\.UU|U\.S\.A|p\.\s?ej|n\.º|núm|pág|aprox|"
+    r"etc|Srta|Sra|Sr|Dra|Dr|Uds|Ud|Vds|Vd)\.",
+    re.IGNORECASE,
+)
+
+#: A character the sentence regex never treats as a terminator. Replacing a dot with it
+#: keeps every index valid on the original text, so evidence spans still slice the input.
+_PROTECTED_DOT = "\u0001"
+
+
+def _protect_abbreviations(text: str) -> str:
+    """Hide the dots inside known abbreviations without changing the length."""
+    return _ABBREVIATIONS.sub(lambda match: match.group(0).replace(".", _PROTECTED_DOT), text)
+
+
 # Spanish press copy carries accents, but a social-media style thread often drops
 # them, and the same story must find the same evidence either way. Folding is 1:1 per
 # character (every accented letter maps to one plain letter), so folded and original
@@ -111,7 +131,7 @@ def _fold(text: str) -> str:
 def split_sentences(text: str) -> list[SentenceSpan]:
     """Split Spanish prose into sentence spans located on the original text."""
     spans: list[SentenceSpan] = []
-    for match in _SENTENCE.finditer(text):
+    for match in _SENTENCE.finditer(_protect_abbreviations(text)):
         body = match.group().lstrip()
         if not body.strip():
             continue  # a chunk made only of terminators is not a sentence
