@@ -9,6 +9,7 @@ import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from ficha_tecnica.api.fetch import BlockedUrlError, FetchError, FetchTooLargeError, fetch_article
 from ficha_tecnica.api.pipeline import analyze
 from ficha_tecnica.api.store import Database
 from ficha_tecnica.clef_client import DecisionProvider, MockProvider, NanProvider
@@ -22,7 +23,7 @@ MAX_TEXT_CHARS = 50_000
 
 
 class AnalysisRequest(BaseModel):
-    """Either pasted text or a URL. The URL mode is ENC-13 and answers 501 until then."""
+    """Either pasted text or a URL, never both."""
 
     text: str | None = None
     url: str | None = None
@@ -111,13 +112,26 @@ def create_app(db_path: Path | None = None) -> FastAPI:
 
     @app.post("/v1/analyses", response_model=Report)
     async def create_analysis(request: AnalysisRequest) -> Report:
-        if request.url is not None and request.text is None:
+        input_kind = "text"
+        if request.text is not None and request.url is not None:
             raise HTTPException(
-                status_code=501,
-                detail="El modo URL llega en ENC-13. Pega el texto de la noticia.",
+                status_code=422,
+                detail="Envia el texto o una URL, no las dos cosas.",
             )
-        text = (request.text or "").strip()
-        if not text:
+        if request.url is not None:
+            try:
+                text = await fetch_article(request.url)
+            except BlockedUrlError as error:
+                raise HTTPException(status_code=400, detail=str(error)) from error
+            except FetchTooLargeError as error:
+                raise HTTPException(status_code=413, detail=str(error)) from error
+            except FetchError as error:
+                raise HTTPException(status_code=502, detail=str(error)) from error
+            input_kind = "url"
+        else:
+            text = (request.text or "").strip()
+
+        if not text.strip():
             raise HTTPException(status_code=422, detail="El texto de la noticia está vacío.")
         if len(text) > MAX_TEXT_CHARS:
             raise HTTPException(
@@ -134,7 +148,7 @@ def create_app(db_path: Path | None = None) -> FastAPI:
             provider_name=provider_name,
             calls=calls,
         )
-        await database.save_report(report, calls=calls)
+        await database.save_report(report, input_kind=input_kind, calls=calls)
         return report
 
     @app.get("/v1/analyses/{analysis_id}", response_model=Report)
