@@ -307,7 +307,9 @@ cd server && uv run ruff check . && uv run ruff format --check . && uv run pyrig
 pnpm --dir web lint && pnpm --dir web typecheck && pnpm --dir web build
 ```
 
-- **531 tests** en el backend, con `ruff` y `pyright` en modo estricto.
+- **Más de 540 pruebas** en el backend, con `ruff` y `pyright` en modo estricto. El
+  recuento exacto crece con las listas curadas, porque parte de la suite se parametriza
+  sobre `config/parties.yaml` y `config/pollsters.yaml`.
 - Integración continua en cada push a `dev` y en cada pull request, con dos trabajos: backend
   y web.
 - Los tests de seguridad y concurrencia se validan por mutación: se retira la protección y se
