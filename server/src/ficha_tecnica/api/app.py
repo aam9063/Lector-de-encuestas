@@ -1,15 +1,18 @@
 """FastAPI application: /v1/analyses and utilities (sections 5.2 and 8)."""
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
+import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from ficha_tecnica.api.pipeline import analyze
 from ficha_tecnica.api.store import Database
-from ficha_tecnica.clef_client import MockProvider
-from ficha_tecnica.config import get_settings
+from ficha_tecnica.clef_client import DecisionProvider, MockProvider, NanProvider
+from ficha_tecnica.config import Settings, get_settings
 from ficha_tecnica.policy import load_policy, resolve_now, within_window
 from ficha_tecnica.schema.checklist import load_checklist
 from ficha_tecnica.schema.questionnaire import load_questionnaire
@@ -30,10 +33,38 @@ class FeedbackRequest(BaseModel):
     verdict: Literal["wrong", "right", "unsure"]
 
 
+def build_provider(
+    settings: Settings | None = None,
+) -> tuple[DecisionProvider, httpx.AsyncClient | None, Literal["nan", "mock"]]:
+    """Choose the provider once, so the two in-flight slots are process-wide.
+
+    Selecting ``nan`` without a key silently degrades to the mock, and says so through the
+    name that ends up in every report, because a sheet built from a flat answer must not be
+    mistaken for a real reading.
+    """
+    resolved = settings or get_settings()
+    if resolved.provider == "nan" and resolved.nan_key:
+        client = httpx.AsyncClient()
+        provider = NanProvider(
+            client=client,
+            api_key=resolved.nan_key,
+            base_url=resolved.nan_base_url,
+        )
+        return provider, client, "nan"
+    return MockProvider(), None, "mock"
+
+
 def create_app(db_path: Path | None = None) -> FastAPI:
     """Build the app. Tests pass their own database path."""
     settings = get_settings()
     database = Database(db_path or Path(settings.database_path))
+    provider, http_client, provider_name = build_provider(settings)
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        yield
+        if http_client is not None:
+            await http_client.aclose()
 
     app = FastAPI(
         title="Ficha Técnica",
@@ -43,12 +74,15 @@ def create_app(db_path: Path | None = None) -> FastAPI:
             "corresponde a la Junta Electoral Central."
         ),
         version="0.2.0",
+        lifespan=lifespan,
     )
     app.state.db = database
+    app.state.provider = provider
+    app.state.provider_name = provider_name
 
     @app.get("/v1/health")
     def health() -> dict[str, str]:
-        return {"status": "ok", "provider": settings.provider}
+        return {"status": "ok", "provider": provider_name}
 
     @app.get("/v1/config")
     def config() -> dict[str, object]:
@@ -58,7 +92,7 @@ def create_app(db_path: Path | None = None) -> FastAPI:
             "checklist_version": load_checklist().version,
             "questionnaire_version": load_questionnaire().version,
             "policy_version": policy.version,
-            "provider": settings.provider,
+            "provider": provider_name,
             "veda": {
                 "mode": policy.veda.mode,
                 "active": within_window(moment, policy.veda),
@@ -95,9 +129,9 @@ def create_app(db_path: Path | None = None) -> FastAPI:
         calls: list[dict[str, object]] = []
         report = await analyze(
             text,
-            provider=MockProvider(),
+            provider=provider,
             policy=policy,
-            provider_name="mock",
+            provider_name=provider_name,
             calls=calls,
         )
         await database.save_report(report, calls=calls)
