@@ -25,12 +25,16 @@ def test_a_one_word_opening_label_is_not_the_headline() -> None:
     assert "encuesta de Demoscopia" in digest["headline"]
 
 
-def test_the_label_is_kept_as_context_and_not_thrown_away() -> None:
-    """The reader's eye should still be able to tell this is a simulation."""
+def test_the_label_is_not_sent_to_the_model_as_story_content() -> None:
+    """The marker is ours, not the story's.
+
+    It stays in the user's text and in the evidence spans, but it must not reach the model:
+    with "SIMULACIÓN" in the state, an obvious poll was classified as not_a_poll
+    (p = 0.57) and the sheet came back grey.
+    """
     digest = build_digest_a("SIMULACIÓN. " + BODY)
 
-    whole = build_state(digest)
-    assert "SIMULACIÓN" in whole
+    assert "SIMULACIÓN" not in build_state(digest)
 
 
 def test_a_short_dateline_does_not_become_the_headline_on_its_own() -> None:

@@ -13,8 +13,11 @@ character.
 
 import re
 
-#: A fence line, possibly with a language tag: ``` or ```markdown.
-_FENCE = re.compile(r"(?m)^\s*```[^\n]*$")
+#: A fence marker and its optional language tag, wherever it appears. Matching the marker
+#: only, and not the whole line, is what makes a fence glued to the text safe: blanking the
+#: line instead deleted the entire story and left an empty state, which the model read as
+#: "not a poll".
+_FENCE = re.compile(r"```(?:markdown|md|text|txt|plaintext|html|json)?", re.IGNORECASE)
 
 
 def strip_paste_artifacts(text: str) -> str:
