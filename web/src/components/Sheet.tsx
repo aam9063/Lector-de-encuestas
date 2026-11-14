@@ -52,11 +52,12 @@ function ComputationRow({ term, value }: { term: string; value: string }) {
 interface SheetProps {
   report: Report;
   pastedText: string;
+  fromUrl?: boolean;
   checklist: Checklist | null;
   onBack: () => void;
 }
 
-export function Sheet({ report, pastedText, checklist, onBack }: SheetProps) {
+export function Sheet({ report, pastedText, fromUrl = false, checklist, onBack }: SheetProps) {
   const groups = groupByLayer(report.findings);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const toggleItem = (itemId: string) => {
@@ -78,6 +79,14 @@ export function Sheet({ report, pastedText, checklist, onBack }: SheetProps) {
           {report.disclaimer}
         </div>
       </header>
+
+      {fromUrl ? (
+        <p className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
+          Análisis a partir de un enlace: la ficha es la misma, pero la frase de evidencia no
+          puede resaltarse sobre tu texto. Pega el texto de la noticia si quieres verla en
+          contexto.
+        </p>
+      ) : null}
 
       <section aria-label="Semáforo de la ficha técnica" className={`rounded-2xl p-6 ${openSemaphore.boxClass}`}>
         <p className="text-xs font-semibold uppercase tracking-wide">Semáforo</p>
@@ -112,7 +121,7 @@ export function Sheet({ report, pastedText, checklist, onBack }: SheetProps) {
                     checklist?.items.find((item) => item.id === finding.item_id),
                     finding.item_id,
                   )}
-                  text={pastedText}
+                  text={fromUrl ? "" : pastedText}
                   expanded={openItemId === finding.item_id}
                   onToggle={toggleItem}
                 />
