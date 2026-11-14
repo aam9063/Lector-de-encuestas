@@ -1,0 +1,37 @@
+# Curated list of pollster name variants for candidate extraction (section 6.1).
+# TODO(ENC-04): maintain and review before the demo; Clef covers what this list misses.
+version: 1
+
+pollsters:
+  - name: "Centro de Investigaciones Sociológicas"
+    variants: ["CIS", "Centro de Investigaciones Sociológicas"]
+  - name: "40dB"
+    variants: ["40dB", "40 db"]
+  - name: "GAD3"
+    variants: ["GAD3", "GAD 3"]
+  - name: "Sigma Dos"
+    variants: ["Sigma Dos", "Sigmados"]
+  - name: "Navarro Acuña Asociados"
+    variants: ["Navarro Acuña", "Navarro Acuña Asociados"]
+  - name: "IMOP Institutos de Opinión Pública"
+    variants: ["IMOP", "Institutos de Opinión Pública"]
+  - name: "Simple Lógica"
+    variants: ["Simple Lógica", "Simple Logica"]
+  - name: "Demoscopia"
+    variants: ["Demoscopia", "Demoscopia Servicios de Estudios"]
+  - name: "Lanzadera"
+    variants: ["Lanzadera"]
+  - name: "Cercius Strategic Research"
+    variants: ["Cercius", "Cercius Strategic Research"]
+  - name: "Hamos Consulting"
+    variants: ["Hamos", "Hamos Consulting"]
+  - name: "Sondaje"
+    variants: ["Sondaje"]
+  - name: "MSD Opinión"
+    variants: ["MSD", "MSD Opinión"]
+  - name: "Público/Inside Story"
+    variants: ["Inside Story"]
+  - name: "MyWordMontero"
+    variants: ["MyWordMontero", "My Word Montero"]
+  - name: "Encuesta Justa"
+    variants: ["Encuesta Justa"]

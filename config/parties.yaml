@@ -1,0 +1,46 @@
+# National parties for voting-estimate masking (sections 6.1 and 7.5).
+# Complete list, identical treatment for every formation: the output never names a
+# party or reproduces its figures. TODO(ENC-04): review before the demo.
+version: 1
+
+parties:
+  - name: "PSOE"
+    variants: ["PSOE", "Partido Socialista", "Partido Socialista Obrero Español"]
+  - name: "PP"
+    variants: ["PP", "Partido Popular"]
+  - name: "Vox"
+    variants: ["Vox", "VOX"]
+  - name: "Sumar"
+    variants: ["Sumar", "Movimiento Sumar"]
+  - name: "Podemos"
+    variants: ["Podemos"]
+  - name: "Izquierda Unida"
+    variants: ["Izquierda Unida", "IU"]
+  - name: "Ciudadanos"
+    variants: ["Ciudadanos", "Cs"]
+  - name: "ERC"
+    variants: ["ERC", "Esquerra Republicana"]
+  - name: "Junts"
+    variants: ["Junts", "Junts per Catalunya"]
+  - name: "PNV"
+    variants: ["PNV", "Partido Nacionalista Vasco", "Euzko Alderdi Jeltzalea"]
+  - name: "EH Bildu"
+    variants: ["EH Bildu", "Euskal Herria Bildu"]
+  - name: "BNG"
+    variants: ["BNG", "Bloque Nacionalista Galego"]
+  - name: "CUP"
+    variants: ["CUP", "Candidatura d'Unitat Popular"]
+  - name: "Coalición Canaria"
+    variants: ["Coalición Canaria", "CC"]
+  - name: "UPN"
+    variants: ["UPN", "Unión del Pueblo Navarro"]
+  - name: "Más País"
+    variants: ["Más País", "Mas Pais"]
+  - name: "PACMA"
+    variants: ["PACMA"]
+  - name: "Alianza Verde"
+    variants: ["Alianza Verde"]
+  - name: "Se Acabó La Fiesta"
+    variants: ["Se Acabó La Fiesta", "SALF"]
+  - name: "Navarra Suma"
+    variants: ["Navarra Suma"]

@@ -1,0 +1,33 @@
+{
+  "id": "decision-9dc9a7a114d1126d",
+  "object": "structured_decision",
+  "created": 1794648156,
+  "model": "clef",
+  "answers": {
+    "b_poll_type": {
+      "type": "choice",
+      "choice": "direct_voting_intention",
+      "probabilities": {
+        "voting_intention_estimate": 0.1925918459892273,
+        "direct_voting_intention": 0.5154024362564087,
+        "leader_ratings": 0.013312429189682007,
+        "issue_opinion": 0.028403447940945625,
+        "self_selected_online_poll": 0.09276823699474335,
+        "poll_of_polls_or_model": 0.07660773396492004,
+        "not_a_poll": 0.08091389387845993
+      },
+      "confidence": 0.5154024362564087
+    }
+  },
+  "usage": {
+    "input_tokens": 293,
+    "output_tokens": 0
+  },
+  "diagnostics": {
+    "b_poll_type": {
+      "label_mass": 1.0,
+      "argmax_is_label": true
+    }
+  },
+  "joint": null
+}

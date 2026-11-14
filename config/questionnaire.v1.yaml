@@ -1,0 +1,91 @@
+# Clef questionnaire v1 (section 6.3). Snapshot-tested by ENC-06.
+# Contract confirmed against the live API (docs/clef-contract.md):
+#   noul  -> probability of "yes"; fields: instructions
+#   choice-> criteria is an OBJECT (label -> short description)
+#   score -> criteria is an ORDERED LIST of levels, low to high
+version: 1
+
+groups:
+  A:  # technical sheet; single call, all noul
+    - id: a_entity
+      type: noul
+      instructions: "Does the text say which company or body conducted the poll?"
+    - id: a_entity_address
+      type: noul
+      instructions: "Does the text give the address or seat of the pollster?"
+    - id: a_client
+      type: noul
+      instructions: "Does the text say who commissioned or funded the poll?"
+    - id: a_sample_size
+      type: noul
+      instructions: "Does the text say how many people were interviewed?"
+    - id: a_margin
+      type: noul
+      instructions: "Does the text state a margin of error for the poll?"
+    - id: a_confidence
+      type: noul
+      instructions: "Does the text state the confidence level of the margin of error?"
+    - id: a_universe
+      type: noul
+      instructions: "Does the text state which population the poll represents?"
+    - id: a_sampling_system
+      type: noul
+      instructions: "Does the text explain the sampling system?"
+    - id: a_selection_procedure
+      type: noul
+      instructions: "Does the text explain how respondents were selected or contacted?"
+    - id: a_mode
+      type: noul
+      instructions: "Does the text say how the interviews were conducted?"
+    - id: a_fieldwork_dates
+      type: noul
+      instructions: "Does the text state the fieldwork dates?"
+    - id: a_question_text
+      type: noul
+      instructions: "Does the text reproduce the exact wording of the questions?"
+    - id: a_nonresponse
+      type: noul
+      instructions: "Does the text state how many people did not answer each question?"
+    - id: a_weighting
+      type: noul
+      instructions: "Does the text mention that data were weighted?"
+    - id: a_external_sheet
+      type: noul
+      instructions: "Does the text refer to a technical sheet published elsewhere?"
+
+  B:  # poll type and framing
+    - id: b_poll_type
+      type: choice
+      instructions: "What kind of survey does the text describe?"
+      criteria:
+        voting_intention_estimate: "a model or seat estimate derived from polls"
+        direct_voting_intention: "respondents stated which party they would vote for"
+        leader_ratings: "ratings of party leaders"
+        issue_opinion: "opinion on issues, not voting intention"
+        self_selected_online_poll: "open online vote by readers, self-selected"
+        poll_of_polls_or_model: "aggregate of several polls"
+        not_a_poll: "not a survey"
+    - id: b_is_electoral
+      type: noul
+      instructions: "Is the text about voting intention or election results?"
+    - id: b_prediction
+      type: noul
+      instructions: "Does the text present results as a prediction of the election outcome rather than a snapshot?"
+    - id: b_lead_decisive
+      type: noul
+      instructions: "Does the headline or lede present one party as clearly ahead or winning?"
+    - id: b_headline_overreach
+      type: score
+      instructions: "How much does the headline claim beyond what the data in the text support?"
+      criteria: ["Nada", "Poco", "Algo", "Bastante", "Mucho"]
+    - id: b_subgroup
+      type: noul
+      instructions: "Does the text present small-subgroup results as if they held for the whole population?"
+
+  C:  # wording; only if a_question_text >= 0.80 and quoted questions exist
+    - id: c_leading
+      type: noul
+      instructions: "Does the wording of the question push towards a concrete answer?"
+    - id: c_loaded_terms
+      type: noul
+      instructions: "Does the question use evaluative or emotional terms about any option?"
